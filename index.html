@@ -140,13 +140,15 @@
         transform: translateX(-50%);
         background-color: #2c2c2e;
         color: #fff;
-        padding: 0.75rem 1.5rem;
+        padding: 0.8rem 1.75rem;
         border-radius: 8px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         opacity: 0;
         visibility: hidden;
         transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
         z-index: 100;
+        min-width: 350px; /* --- MODIFIED: Made toast wider --- */
+        text-align: center;
     }
     .toast.show {
         opacity: 1;
@@ -387,7 +389,7 @@
         }
         if(lastSync) {
             updateLastSyncTime(lastSync);
-            showToast("⚡️ Data dimuat dari cache lokal.");
+            calculateAndShowDataSize("⚡️ Data dimuat dari cache lokal.");
         }
     }
     
@@ -406,8 +408,9 @@
             const now = new Date().toISOString();
             localStorage.setItem('lastSyncTimestamp', now);
             updateLastSyncTime(now);
-            showToast("Sinkronisasi selesai! ✨");
+            calculateAndShowDataSize("Sinkronisasi selesai! ✨");
         } catch (error) {
+            console.error("Sync error:", error);
             showToast("Gagal menyinkronkan data. Periksa koneksi.");
         } finally {
             spinner.classList.add('hidden');
@@ -732,6 +735,19 @@
         
         confirmBtn.onclick = () => { onConfirm(); cleanup(); };
         document.getElementById('cancelBtn').onclick = cleanup;
+    }
+
+    // --- NEW: Helper to calculate data size and show in toast ---
+    function calculateAndShowDataSize(messagePrefix) {
+        if (!allLicensesCache.length && !allActivatedDevicesCache.length) {
+            showToast(messagePrefix); // Don't show size if there's no data
+            return;
+        }
+        // Use Blob for a more accurate byte calculation
+        const dataString = JSON.stringify(allLicensesCache) + JSON.stringify(allActivatedDevicesCache);
+        const totalBytes = new Blob([dataString]).size;
+        const totalMB = (totalBytes / (1024 * 1024)).toFixed(3); // Use 3 decimal places for more precision on small sizes
+        showToast(`${messagePrefix} - ${totalMB} MB`);
     }
 
     function slugify(text) { return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, ''); }
