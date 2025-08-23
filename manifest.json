@@ -1,7 +1,7 @@
 {
   "name": "ShowTime Admin",
   "short_name": "ShowTime Admin",
-  "start_url": "./",
+  "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#FFA00A",
