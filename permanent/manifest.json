@@ -1,11 +1,11 @@
 {
   "name": "Permanent Admin Panel",
   "short_name": "Permanent Admin Panel",
-  "start_url": ".",
+  "start_url": "/permanent/admin.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#1a1a1a",
-  "description": "Admin panel untuk mengelola lisensi dan pengguna Permanent QR Generator.",
+  "description": "Admin panel untuk mengelola lisensi dan pengguna Permanent.",
   "icons": [
     {
       "src": "icons/icon-192x192.png",
