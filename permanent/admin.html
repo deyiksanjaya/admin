@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Permanent (Hemat Bandwidth)</title>
+    <title>Admin Panel - Permanent</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,124 +14,81 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#1a1a1a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Permanent - Admin">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-
     <style>
-        /* Gaya kustom yang cocok dengan tema premium dan mistis */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #000;
-            color: #e0e0e0;
-            overflow-x: hidden;
-        }
-
-        .cinzel-font {
-            font-family: 'Cinzel', serif;
-        }
-
-        .main-bg {
-            background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 100%);
-        }
-
-        .premium-input {
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .premium-input:focus {
-            outline: none;
-            border-color: rgba(220, 180, 100, 0.7);
-            box-shadow: 0 0 15px rgba(220, 180, 100, 0.3);
-        }
-
-        .premium-button {
-            background: linear-gradient(45deg, #3a3a3a, #1a1a1a);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            transition: all 0.3s ease;
-        }
-
-        .premium-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(220, 180, 100, 0.2);
-            border-color: rgba(220, 180, 100, 0.5);
-        }
-
-        .premium-button:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .premium-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .danger-button {
-            background: linear-gradient(45deg, #8c2b2b, #5a1a1a);
-        }
-
-        .danger-button:hover:not(:disabled) {
-            box-shadow: 0 6px 20px rgba(220, 100, 100, 0.2);
-            border-color: rgba(220, 100, 100, 0.5);
-        }
-
-        .card-container {
-            background-color: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #e0e0e0; overflow-x: hidden; }
+        .cinzel-font { font-family: 'Cinzel', serif; }
+        .main-bg { background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 100%); }
+        .premium-input { background-color: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2); transition: all 0.3s ease; }
+        .premium-input:focus { outline: none; border-color: rgba(220, 180, 100, 0.7); box-shadow: 0 0 15px rgba(220, 180, 100, 0.3); }
+        .premium-button { background: linear-gradient(45deg, #3a3a3a, #1a1a1a); border: 1px solid rgba(255, 255, 255, 0.2); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4); transition: all 0.3s ease; }
+        .premium-button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(220, 180, 100, 0.2); border-color: rgba(220, 180, 100, 0.5); }
+        .premium-button:active:not(:disabled) { transform: translateY(0); }
+        .premium-button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .danger-button { background: linear-gradient(45deg, #8c2b2b, #5a1a1a); }
+        .danger-button:hover:not(:disabled) { box-shadow: 0 6px 20px rgba(220, 100, 100, 0.2); border-color: rgba(220, 100, 100, 0.5); }
+        .card-container { background-color: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); }
+        .fade-out { transition: opacity 0.5s ease, transform 0.5s ease; opacity: 0; transform: scale(0.95); }
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 
 <body class="main-bg min-h-screen w-full p-4 md:p-8">
 
-    <!-- Kontainer Admin Utama -->
-    <div id="adminContainer" class="w-full max-w-5xl mx-auto">
-        <header class="text-center mb-8 md:mb-12">
-            <h1 class="cinzel-font text-3xl md:text-4xl font-bold text-white tracking-wider">Admin Panel</h1>
-            <p class="text-gray-400">Permanent QR Generator Management</p>
+    <div class="w-full max-w-7xl mx-auto">
+        <header class="text-center mb-8 md:mb-12 flex flex-col sm:flex-row justify-between items-center">
+            <div>
+                <h1 class="cinzel-font text-3xl md:text-4xl font-bold text-white tracking-wider">Admin Panel</h1>
+                <p class="text-gray-400">Permanent QR Generator Management</p>
+            </div>
+            <button id="globalRefreshBtn" class="premium-button text-white font-semibold px-4 py-3 rounded-lg flex items-center justify-center gap-2 mt-4 sm:mt-0" title="Refresh All Data">
+                <!-- PERUBAHAN: Ikon diganti dengan gambar -->
+                <img id="globalRefreshIcon" src="https://img.icons8.com/ios-glyphs/30/ffffff/refresh--v1.png" alt="Refresh" class="w-5 h-5"/>
+                <span>Refresh</span>
+            </button>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="flex flex-col gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <div class="lg:col-span-1 flex flex-col gap-8">
                 <div class="card-container rounded-xl p-6">
-                    <h2 class="cinzel-font text-2xl font-bold text-white mb-4">Generate License Codes</h2>
+                    <h2 class="cinzel-font text-2xl font-bold text-white mb-4">Generate Licenses</h2>
                     <div class="flex flex-col sm:flex-row gap-4">
-                        <input type="number" id="licenseCount" placeholder="Jumlah (misal: 5)" class="premium-input w-full px-4 py-3 rounded-lg text-white placeholder-gray-500" min="1" value="1">
+                        <input type="number" id="licenseCount" placeholder="Amount" class="premium-input w-full px-4 py-3 rounded-lg text-white placeholder-gray-500" min="1" value="1">
                         <button id="generateLicensesBtn" class="premium-button text-white font-semibold px-6 py-3 rounded-lg whitespace-nowrap">Generate</button>
                     </div>
-                    <p id="generateMessage" class="text-green-400 mt-2 h-4 text-sm"></p>
-                    <div id="generatedLicenses" class="mt-4 p-4 bg-black/30 rounded-lg max-h-60 overflow-y-auto hidden"></div>
+                    <p id="generateMessage" class="mt-2 h-4 text-sm"></p>
+                </div>
+
+                <div class="card-container rounded-xl p-6">
+                    <h2 class="cinzel-font text-2xl font-bold text-white mb-4">Recently Generated</h2>
+                    <div id="unactivatedLicensesList" class="max-h-96 overflow-y-auto pr-2">
+                        <p id="loadingUnactivated" class="text-center text-gray-400">Loading...</p>
+                    </div>
                 </div>
             </div>
-            <div class="card-container rounded-xl p-6">
+
+            <div class="lg:col-span-2 card-container rounded-xl p-6">
                 <h2 class="cinzel-font text-2xl font-bold text-white mb-4">Active Users</h2>
                 <div class="flex flex-col sm:flex-row gap-4 mb-4">
-                    <input type="text" id="searchEmail" placeholder="Cari berdasarkan email..." class="premium-input w-full px-4 py-3 rounded-lg text-white placeholder-gray-500">
-                    <button id="searchBtn" class="premium-button text-white font-semibold px-6 py-3 rounded-lg whitespace-nowrap">Cari</button>
+                    <input type="text" id="searchEmail" placeholder="Search by email..." class="premium-input w-full px-4 py-3 rounded-lg text-white placeholder-gray-500">
                 </div>
-                <div id="activeUsersList" class="max-h-96 overflow-y-auto pr-2">
-                    <p id="loadingUsers" class="text-center text-gray-400">Memuat pengguna...</p>
+                <div id="activeUsersList" class="max-h-[34rem] overflow-y-auto pr-2">
+                    <p id="loadingUsers" class="text-center text-gray-400">Loading users...</p>
                 </div>
             </div>
+
         </div>
     </div>
 
-    <!-- Modal Konfirmasi Terminasi -->
+    <!-- Modal Konfirmasi -->
     <div id="confirmationModal" class="fixed inset-0 bg-black/70 flex items-center justify-center hidden z-50 p-4">
         <div class="card-container rounded-xl p-8 max-w-sm w-full text-center">
-            <h3 id="modalTitle" class="cinzel-font text-xl font-bold text-white mb-2">Konfirmasi Aksi</h3>
+            <h3 id="modalTitle" class="cinzel-font text-xl font-bold text-white mb-2">Confirm Action</h3>
             <p id="modalText" class="text-gray-300 mb-6"></p>
             <div class="flex gap-4">
-                <button id="cancelBtn" class="premium-button text-white font-semibold py-2 rounded-lg flex-1">Batal</button>
-                <button id="confirmActionBtn" class="danger-button text-white font-semibold py-2 rounded-lg flex-1">Ya</button>
+                <button id="cancelBtn" class="premium-button text-white font-semibold py-2 rounded-lg flex-1">Cancel</button>
+                <button id="confirmActionBtn" class="danger-button text-white font-semibold py-2 rounded-lg flex-1">Confirm</button>
             </div>
         </div>
     </div>
@@ -140,7 +97,7 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, get, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
     import { getFirestore, collection, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -156,24 +113,24 @@
     let db, auth, firestore;
     let allUsers = [];
     let isAuthReady = false;
+    let currentAction = null, currentPayload = null;
 
-    // Modal state
-    let currentAction = null;
-    let currentPayload = null;
-
+    // DOM Elements
     const generateLicensesBtn = document.getElementById('generateLicensesBtn');
     const licenseCountInput = document.getElementById('licenseCount');
     const generateMessage = document.getElementById('generateMessage');
-    const generatedLicensesContainer = document.getElementById('generatedLicenses');
     const activeUsersList = document.getElementById('activeUsersList');
     const loadingUsers = document.getElementById('loadingUsers');
     const searchEmailInput = document.getElementById('searchEmail');
-    const searchBtn = document.getElementById('searchBtn');
     const confirmationModal = document.getElementById('confirmationModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalText = document.getElementById('modalText');
     const cancelBtn = document.getElementById('cancelBtn');
     const confirmActionBtn = document.getElementById('confirmActionBtn');
+    const globalRefreshBtn = document.getElementById('globalRefreshBtn');
+    const globalRefreshIcon = document.getElementById('globalRefreshIcon');
+    const unactivatedLicensesList = document.getElementById('unactivatedLicensesList');
+    const loadingUnactivated = document.getElementById('loadingUnactivated');
 
     async function initialize() {
         try {
@@ -181,22 +138,24 @@
             auth = getAuth(app);
             db = getDatabase(app);
             firestore = getFirestore(app);
-
             await signInAnonymously(auth);
 
             auth.onAuthStateChanged(user => {
                 if (user) {
                     isAuthReady = true;
                     listenForActiveUsers();
-                } else {
-                    loadingUsers.textContent = "Tidak dapat memuat data pengguna.";
+                    fetchUnactivatedLicenses();
                 }
             });
-
         } catch (error) {
-            console.error("Inisialisasi Gagal:", error);
-            loadingUsers.textContent = "Gagal terhubung ke server.";
+            console.error("Initialization Failed:", error);
         }
+    }
+
+    function showTemporaryMessage(element, message, isError = false, duration = 3000) {
+        element.textContent = message;
+        element.className = `mt-2 h-4 text-sm ${isError ? 'text-red-400' : 'text-green-400'}`;
+        setTimeout(() => element.textContent = "", duration);
     }
 
     function createLicenseCode() {
@@ -212,81 +171,76 @@
     async function handleGenerateLicenses() {
         const count = parseInt(licenseCountInput.value, 10);
         if (isNaN(count) || count < 1) {
-            generateMessage.textContent = "Masukkan jumlah yang valid.";
+            showTemporaryMessage(generateMessage, "Please enter a valid amount.", true);
             return;
         }
-
         generateLicensesBtn.disabled = true;
-        generateLicensesBtn.textContent = "Membuat...";
-        generateMessage.textContent = "";
-        generatedLicensesContainer.innerHTML = "";
-        generatedLicensesContainer.classList.add('hidden');
-
+        generateLicensesBtn.textContent = "Generating...";
         try {
             const licensesRef = ref(db, 'licenseCodes');
-
             for (let i = 0; i < count; i++) {
                 const newCode = createLicenseCode();
-                const newLicenseRef = await push(licensesRef, newCode);
-                const newKey = newLicenseRef.key;
-
-                const licenseDiv = document.createElement('div');
-                licenseDiv.className = 'license-item flex flex-col sm:flex-row justify-between items-center py-2 px-4 bg-gray-900/50 rounded-lg mb-2';
-                licenseDiv.innerHTML = `
-                    <p class="text-white font-mono text-center sm:text-left mb-2 sm:mb-0 break-all">${newCode}</p>
-                    <div class="flex gap-2">
-                        <button data-code="${newCode}" data-key="${newKey}" class="copy-btn premium-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Salin</button>
-                        <button data-code="${newCode}" data-key="${newKey}" class="share-btn premium-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Bagikan</button>
-                        <button data-code="${newCode}" data-key="${newKey}" class="delete-btn danger-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Hapus</button>
-                    </div>
-                `;
-                generatedLicensesContainer.appendChild(licenseDiv);
+                await push(licensesRef, newCode);
             }
-
-            generatedLicensesContainer.classList.remove('hidden');
-            generateMessage.textContent = `${count} lisensi berhasil dibuat!`;
-            setTimeout(() => generateMessage.textContent = "", 1500);
-
+            showTemporaryMessage(generateMessage, `${count} licenses generated successfully!`);
+            fetchUnactivatedLicenses();
         } catch (error) {
-            console.error("Gagal membuat lisensi:", error);
-            generateMessage.textContent = "Terjadi kesalahan.";
+            showTemporaryMessage(generateMessage, "An error occurred.", true);
         } finally {
             generateLicensesBtn.disabled = false;
             generateLicensesBtn.textContent = "Generate";
         }
     }
-
-    async function terminateUser(docId) {
+    
+    async function fetchUnactivatedLicenses() {
+        loadingUnactivated.textContent = "Loading...";
         try {
-            const docRef = doc(firestore, "activatedLicenses", docId);
-            await deleteDoc(docRef);
+            const licensesRef = ref(db, 'licenseCodes');
+            const snapshot = await get(licensesRef);
+            const licenses = [];
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    licenses.push({ key: childSnapshot.key, code: childSnapshot.val() });
+                });
+            }
+            licenses.reverse();
+            displayUnactivatedLicenses(licenses);
         } catch (error) {
-            console.error(`Gagal menonaktifkan pengguna dengan ID ${docId}:`, error);
+            console.error("Failed to fetch licenses:", error);
+            loadingUnactivated.textContent = "Failed to load.";
         }
     }
 
-    async function deleteGeneratedLicense(licenseKey) {
-        try {
-            const licenseRef = ref(db, `licenseCodes/${licenseKey}`);
-            await remove(licenseRef);
-            console.log(`Lisensi ${licenseKey} terhapus.`);
-        } catch (error) {
-            console.error("Gagal menghapus lisensi:", error);
+    function displayUnactivatedLicenses(licenses) {
+        unactivatedLicensesList.innerHTML = '';
+        if (licenses.length === 0) {
+            unactivatedLicensesList.innerHTML = '<p class="text-center text-gray-400">No available licenses.</p>';
+            return;
         }
+        licenses.forEach(({ key, code }) => {
+            const licenseDiv = document.createElement('div');
+            licenseDiv.className = 'license-item p-3 bg-gray-900/50 rounded-lg mb-2';
+            licenseDiv.innerHTML = `
+                <p class="text-white font-mono text-center text-lg break-all mb-3">${code}</p>
+                <div class="flex gap-2 justify-center">
+                    <button data-code="${code}" class="copy-btn premium-button text-white font-semibold px-3 py-1 text-sm rounded-lg flex-1">Copy</button>
+                    <button data-code="${code}" class="share-btn premium-button text-white font-semibold px-3 py-1 text-sm rounded-lg flex-1">Share</button>
+                    <button data-key="${key}" data-code="${code}" class="delete-btn danger-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Delete</button>
+                </div>
+            `;
+            unactivatedLicensesList.appendChild(licenseDiv);
+        });
     }
 
-    // Real-time Firestore
     function listenForActiveUsers() {
-        if (!isAuthReady) return;
-
         const activeLicensesCol = collection(firestore, "activatedLicenses");
         onSnapshot(activeLicensesCol, (snapshot) => {
             allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             allUsers.sort((a, b) => (b.activatedAt?.toDate() || 0) - (a.activatedAt?.toDate() || 0));
             displayUsers(allUsers);
         }, (error) => {
-            console.error("Gagal mendengarkan perubahan:", error);
-            loadingUsers.textContent = "Gagal memuat data pengguna.";
+            console.error("Failed to listen for changes:", error);
+            loadingUsers.textContent = "Failed to load user data.";
         });
     }
 
@@ -294,84 +248,140 @@
         activeUsersList.innerHTML = '';
         const searchTerm = searchEmailInput.value.toLowerCase();
         const filtered = searchTerm ? users.filter(u => u.email.toLowerCase().includes(searchTerm)) : users;
-
-        if (filtered.length === 0) {
-            activeUsersList.innerHTML = '<p class="text-center text-gray-400">Tidak ada pengguna yang cocok.</p>';
+        if (users.length === 0) {
+            activeUsersList.innerHTML = '<p class="text-center text-gray-400">No active users yet.</p>';
             return;
         }
-
+        if (filtered.length === 0) {
+            activeUsersList.innerHTML = '<p class="text-center text-gray-400">No matching users found.</p>';
+            return;
+        }
         filtered.forEach(user => {
             const userElement = document.createElement('div');
-            userElement.className = 'p-3 border-b border-gray-700 flex justify-between items-center';
-            const activationDate = user.activatedAt ? user.activatedAt.toDate().toLocaleDateString('id-ID') : 'N/A';
-
-            userElement.innerHTML = `
-                <div>
-                    <p class="text-white font-semibold">${user.email}</p>
-                    <p class="text-sm text-gray-400 font-mono">${user.licenseCode}</p>
-                    <p class="text-xs text-gray-500">Diaktifkan: ${activationDate}</p>
-                    <p class="text-xs text-gray-500">UID: ${user.id}</p>
-                </div>
-                <button data-id="${user.id}" class="terminate-btn danger-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Terminate</button>
-            `;
+            userElement.className = 'user-item p-3 border-b border-gray-700 flex justify-between items-center';
+            const activationDate = user.activatedAt ? user.activatedAt.toDate().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
+            userElement.innerHTML = `<div><p class="text-white font-semibold">${user.email}</p><p class="text-sm text-gray-400 font-mono">${user.licenseCode}</p><p class="text-xs text-gray-500">Activated: ${activationDate}</p></div><button data-id="${user.id}" class="terminate-btn danger-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Terminate</button>`;
             activeUsersList.appendChild(userElement);
         });
     }
+    
+    async function deleteLicense(licenseKey, element) {
+        try {
+            element.classList.add('fade-out');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const licenseRef = ref(db, `licenseCodes/${licenseKey}`);
+            await remove(licenseRef);
+            element.remove();
+        } catch (error) {
+            console.error("Failed to delete license:", error);
+            element.classList.remove('fade-out');
+        }
+    }
+    
+    async function terminateUser(docId, element) {
+        try {
+            element.classList.add('fade-out');
+            await new Promise(resolve => setTimeout(resolve, 500));
+            const docRef = doc(firestore, "activatedLicenses", docId);
+            await deleteDoc(docRef);
+        } catch (error) {
+            console.error(`Failed to terminate user:`, error);
+            element.classList.remove('fade-out');
+        }
+    }
 
-    // === Event binding ===
+    async function handleGlobalRefresh() {
+        globalRefreshIcon.classList.add('spin');
+        globalRefreshBtn.disabled = true;
+        searchEmailInput.value = '';
+        displayUsers(allUsers);
+        await fetchUnactivatedLicenses();
+        setTimeout(() => {
+            globalRefreshIcon.classList.remove('spin');
+            globalRefreshBtn.disabled = false;
+        }, 500);
+    }
+
+    // === Event Listeners ===
+    initialize();
     generateLicensesBtn.addEventListener('click', handleGenerateLicenses);
-    searchBtn.addEventListener('click', () => displayUsers(allUsers));
+    searchEmailInput.addEventListener('input', () => displayUsers(allUsers));
+    globalRefreshBtn.addEventListener('click', handleGlobalRefresh);
 
-    // Active users terminate
+    unactivatedLicensesList.addEventListener('click', (e) => {
+        const target = e.target;
+        const element = target.closest('.license-item');
+        if (!element) return;
+        
+        const code = target.dataset.code;
+        
+        const messageToShare = `Thank you so much for purchasing PERMANENT.
+Your support truly means the world to me as an independent creator in magic.
+
+Here’s your personal license code (one-time use only) :
+
+${code}
+
+I hope you enjoy using it, and I’d love to hear your thoughts or see how you apply it in your work.
+
+Warm regards,
+Heri Sanjaya`;
+
+        if (target.classList.contains('copy-btn')) {
+            navigator.clipboard.writeText(messageToShare).then(() => {
+                target.textContent = 'Copied!';
+                setTimeout(() => target.textContent = 'Copy', 2000);
+            });
+        } else if (target.classList.contains('share-btn')) {
+             if (navigator.share) {
+                navigator.share({
+                    title: 'Permanent License Code',
+                    text: messageToShare,
+                }).catch(console.error);
+            } else {
+                alert('Share feature is not supported in this browser. Please copy the text manually.');
+            }
+        } else if (target.classList.contains('delete-btn')) {
+            const key = target.dataset.key;
+            currentAction = 'deleteLicense';
+            currentPayload = { key, element };
+            modalTitle.textContent = "Confirm Deletion";
+            modalText.textContent = `Are you sure you want to delete license ${code}?`;
+            confirmationModal.classList.remove('hidden');
+        }
+    });
+
     activeUsersList.addEventListener('click', (e) => {
         if (e.target.classList.contains('terminate-btn')) {
             const docId = e.target.dataset.id;
-            modalTitle.textContent = "Konfirmasi Terminasi";
-            modalText.textContent = "Yakin nonaktifkan lisensi user ini?";
-            confirmActionBtn.textContent = "Ya, Nonaktifkan";
-            confirmationModal.classList.remove('hidden');
+            const element = e.target.closest('.user-item');
             currentAction = 'terminateUser';
-            currentPayload = { docId };
-        }
-    });
-
-    // Generated license actions
-    generatedLicensesContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('delete-btn')) {
-            const code = e.target.dataset.code;
-            const key = e.target.dataset.key;
-            const element = e.target.closest('.license-item');
-            modalTitle.textContent = "Konfirmasi Hapus";
-            modalText.textContent = `Yakin hapus lisensi ${code}?`;
-            confirmActionBtn.textContent = "Ya, Hapus";
+            currentPayload = { docId, element };
+            modalTitle.textContent = "Confirm Termination";
+            modalText.textContent = "Are you sure you want to terminate this user's license?";
             confirmationModal.classList.remove('hidden');
-            currentAction = 'deleteLicense';
-            currentPayload = { key, element };
         }
     });
 
-    // Confirm modal (satu handler untuk semua)
     confirmActionBtn.onclick = async () => {
+        if (!currentAction || !currentPayload) return;
+        confirmActionBtn.disabled = true;
         if (currentAction === 'terminateUser') {
-            await terminateUser(currentPayload.docId);
+            await terminateUser(currentPayload.docId, currentPayload.element);
         } else if (currentAction === 'deleteLicense') {
-            await deleteGeneratedLicense(currentPayload.key);
-            if (currentPayload.element) currentPayload.element.remove();
+            await deleteLicense(currentPayload.key, currentPayload.element);
         }
         confirmationModal.classList.add('hidden');
+        confirmActionBtn.disabled = false;
         currentAction = null;
         currentPayload = null;
     };
 
     cancelBtn.addEventListener('click', () => {
         confirmationModal.classList.add('hidden');
-        currentAction = null;
-        currentPayload = null;
     });
 
-    initialize();
 </script>
-
 
 </body>
 </html>
