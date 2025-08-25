@@ -80,7 +80,6 @@
                         </div>
                     </div>
 
-                    <!-- PERUBAHAN: Card untuk URL Management dipindahkan ke bawah -->
                     <div class="card-container rounded-xl p-6">
                         <h2 class="cinzel-font text-2xl font-bold text-white mb-4">App Configuration</h2>
                         <label for="currentUrlInput" class="text-sm text-gray-400 mb-2 block">Current URL</label>
@@ -121,7 +120,7 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, collection, doc, deleteDoc, onSnapshot, writeBatch, serverTimestamp, getDocs, query, orderBy, limit, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, deleteDoc, onSnapshot, writeBatch, serverTimestamp, getDocs, query, limit, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAjs_-oH_kma3lHU4BCyStN8W0606MYLus",
@@ -135,6 +134,7 @@
 
     let auth, firestore;
     let allUsers = [];
+    let allUnactivatedLicenses = [];
     let isAuthReady = false;
     let currentAction = null, currentPayload = null;
 
@@ -170,8 +170,7 @@
                     isAuthReady = true;
                     fetchCurrentUrl();
                     listenForActiveUsers();
-                    // MEMUAT DARI LOCAL STORAGE SAAT AWAL (MODIFIKASI)
-                    loadAndDisplayUnactivatedLicenses();
+                    listenForUnactivatedLicenses();
                 }
             });
         } catch (error) {
@@ -245,12 +244,10 @@
             for (let i = 0; i < count; i++) {
                 const newCode = createLicenseCode();
                 const licenseRef = doc(firestore, "availableLicenses", newCode);
-                batch.set(licenseRef, { createdAt: serverTimestamp() });
+                batch.set(licenseRef, {}); 
             }
             await batch.commit();
             showTemporaryMessage(generateMessage, `${count} licenses generated successfully!`);
-            // SINKRONISASI SETELAH GENERATE (MODIFIKASI)
-            await syncUnactivatedLicenses();
         } catch (error) {
             console.error("Error generating licenses:", error);
             showTemporaryMessage(generateMessage, "An error occurred.", true);
@@ -260,42 +257,18 @@
         }
     }
     
-    // FUNGSI BARU: MEMUAT DARI LOCAL STORAGE DAN MENAMPILKANNYA
-    function loadAndDisplayUnactivatedLicenses() {
-        loadingUnactivated.textContent = "Loading from cache...";
-        const cachedData = localStorage.getItem('unactivatedLicenses');
-        if (cachedData) {
-            const licenses = JSON.parse(cachedData);
-            displayUnactivatedLicenses(licenses);
-            loadingUnactivated.textContent = "";
-        } else {
-            // Jika tidak ada data di cache, ambil dari Firestore
-            syncUnactivatedLicenses();
-        }
-    }
-
-    // FUNGSI BARU: SINKRONISASI DENGAN SERVER
-    async function syncUnactivatedLicenses() {
-        loadingUnactivated.textContent = "Syncing with server...";
-        try {
-            const licensesCol = collection(firestore, 'availableLicenses');
-            const q = query(licensesCol, orderBy("createdAt", "desc"), limit(100));
-            const querySnapshot = await getDocs(q);
-            
-            const licenses = querySnapshot.docs.map(doc => ({
+    function listenForUnactivatedLicenses() {
+        const licensesCol = collection(firestore, 'availableLicenses');
+        onSnapshot(licensesCol, (snapshot) => {
+            allUnactivatedLicenses = snapshot.docs.map(doc => ({
                 code: doc.id,
                 ...doc.data()
             }));
-
-            // SIMPAN DATA KE LOCAL STORAGE (MODIFIKASI)
-            localStorage.setItem('unactivatedLicenses', JSON.stringify(licenses));
-
-            displayUnactivatedLicenses(licenses);
-            loadingUnactivated.textContent = "";
-        } catch (error) {
-            console.error("Failed to sync licenses:", error);
-            loadingUnactivated.textContent = "Failed to sync.";
-        }
+            displayUnactivatedLicenses(allUnactivatedLicenses);
+        }, (error) => {
+            console.error("Failed to listen for unactivated licenses:", error);
+            loadingUnactivated.textContent = "Failed to load licenses.";
+        });
     }
 
     function displayUnactivatedLicenses(licenses) {
@@ -359,10 +332,6 @@
             const licenseRef = doc(firestore, 'availableLicenses', licenseCode);
             await deleteDoc(licenseRef);
             element.remove();
-            // PERBARUI LOCAL STORAGE SETELAH MENGHAPUS (MODIFIKASI)
-            const cachedData = JSON.parse(localStorage.getItem('unactivatedLicenses') || '[]');
-            const updatedData = cachedData.filter(license => license.code !== licenseCode);
-            localStorage.setItem('unactivatedLicenses', JSON.stringify(updatedData));
         } catch (error) {
             console.error("Failed to delete license:", error);
             element.classList.remove('fade-out');
@@ -385,10 +354,10 @@
         globalRefreshIcon.classList.add('spin');
         globalRefreshBtn.disabled = true;
         searchEmailInput.value = '';
+        // Karena sudah onSnapshot, cukup panggil display untuk update tampilan
         displayUsers(allUsers);
+        displayUnactivatedLicenses(allUnactivatedLicenses);
         await fetchCurrentUrl();
-        // SINKRONISASI UNTUK REFRESH (MODIFIKASI)
-        await syncUnactivatedLicenses();
         setTimeout(() => {
             globalRefreshIcon.classList.remove('spin');
             globalRefreshBtn.disabled = false;
