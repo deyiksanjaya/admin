@@ -170,7 +170,8 @@
                     isAuthReady = true;
                     fetchCurrentUrl();
                     listenForActiveUsers();
-                    fetchUnactivatedLicenses();
+                    // MEMUAT DARI LOCAL STORAGE SAAT AWAL (MODIFIKASI)
+                    loadAndDisplayUnactivatedLicenses();
                 }
             });
         } catch (error) {
@@ -248,7 +249,8 @@
             }
             await batch.commit();
             showTemporaryMessage(generateMessage, `${count} licenses generated successfully!`);
-            fetchUnactivatedLicenses();
+            // SINKRONISASI SETELAH GENERATE (MODIFIKASI)
+            await syncUnactivatedLicenses();
         } catch (error) {
             console.error("Error generating licenses:", error);
             showTemporaryMessage(generateMessage, "An error occurred.", true);
@@ -258,8 +260,23 @@
         }
     }
     
-    async function fetchUnactivatedLicenses() {
-        loadingUnactivated.textContent = "Loading...";
+    // FUNGSI BARU: MEMUAT DARI LOCAL STORAGE DAN MENAMPILKANNYA
+    function loadAndDisplayUnactivatedLicenses() {
+        loadingUnactivated.textContent = "Loading from cache...";
+        const cachedData = localStorage.getItem('unactivatedLicenses');
+        if (cachedData) {
+            const licenses = JSON.parse(cachedData);
+            displayUnactivatedLicenses(licenses);
+            loadingUnactivated.textContent = "";
+        } else {
+            // Jika tidak ada data di cache, ambil dari Firestore
+            syncUnactivatedLicenses();
+        }
+    }
+
+    // FUNGSI BARU: SINKRONISASI DENGAN SERVER
+    async function syncUnactivatedLicenses() {
+        loadingUnactivated.textContent = "Syncing with server...";
         try {
             const licensesCol = collection(firestore, 'availableLicenses');
             const q = query(licensesCol, orderBy("createdAt", "desc"), limit(100));
@@ -270,10 +287,14 @@
                 ...doc.data()
             }));
 
+            // SIMPAN DATA KE LOCAL STORAGE (MODIFIKASI)
+            localStorage.setItem('unactivatedLicenses', JSON.stringify(licenses));
+
             displayUnactivatedLicenses(licenses);
+            loadingUnactivated.textContent = "";
         } catch (error) {
-            console.error("Failed to fetch licenses:", error);
-            loadingUnactivated.textContent = "Failed to load.";
+            console.error("Failed to sync licenses:", error);
+            loadingUnactivated.textContent = "Failed to sync.";
         }
     }
 
@@ -338,6 +359,10 @@
             const licenseRef = doc(firestore, 'availableLicenses', licenseCode);
             await deleteDoc(licenseRef);
             element.remove();
+            // PERBARUI LOCAL STORAGE SETELAH MENGHAPUS (MODIFIKASI)
+            const cachedData = JSON.parse(localStorage.getItem('unactivatedLicenses') || '[]');
+            const updatedData = cachedData.filter(license => license.code !== licenseCode);
+            localStorage.setItem('unactivatedLicenses', JSON.stringify(updatedData));
         } catch (error) {
             console.error("Failed to delete license:", error);
             element.classList.remove('fade-out');
@@ -362,7 +387,8 @@
         searchEmailInput.value = '';
         displayUsers(allUsers);
         await fetchCurrentUrl();
-        await fetchUnactivatedLicenses();
+        // SINKRONISASI UNTUK REFRESH (MODIFIKASI)
+        await syncUnactivatedLicenses();
         setTimeout(() => {
             globalRefreshIcon.classList.remove('spin');
             globalRefreshBtn.disabled = false;
