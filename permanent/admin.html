@@ -3,11 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- PERUBAHAN: Viewport diatur untuk mencegah scaling dan memastikan kontrol penuh -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Admin Panel - Permanent</title>
     
-    <!-- PERUBAHAN: Meta tag PWA untuk pengalaman fullscreen -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
@@ -20,17 +18,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
 
     <style>
-        /* PERUBAHAN: CSS untuk layout fullscreen seperti aplikasi native */
         html, body {
             height: 100%;
-            overflow: hidden; /* Mencegah scroll di body */
-            background-color: #000; /* Latar belakang dasar */
+            overflow: hidden;
+            background-color: #000;
         }
         body { font-family: 'Inter', sans-serif; color: #e0e0e0; }
         #app-container {
             height: 100%;
-            overflow-y: auto; /* Scroll hanya terjadi di dalam kontainer ini */
-            -webkit-overflow-scrolling: touch; /* Scroll yang mulus di iOS */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .main-bg { background: radial-gradient(ellipse at center, #1a1a1a 0%, #000000 100%); }
         .cinzel-font { font-family: 'Cinzel', serif; }
@@ -49,10 +46,8 @@
 </head>
 
 <body>
-    <!-- PERUBAHAN: Kontainer utama untuk scrolling -->
     <div id="app-container" class="main-bg w-full">
         <div class="w-full max-w-7xl mx-auto p-4 md:p-8">
-            <!-- PERUBAHAN: Header dibuat sticky -->
             <header class="sticky top-0 z-10 pt-safe-top bg-black/50 backdrop-blur-sm -mx-4 -mt-4 px-4 py-4 mb-4 md:-mx-8 md:-mt-8 md:px-8 md:py-6 md:mb-8">
                 <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center">
                     <div class="text-center sm:text-left">
@@ -114,8 +109,8 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, get, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-    import { getFirestore, collection, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // PERUBAHAN: Realtime Database tidak lagi digunakan untuk lisensi
+    import { getFirestore, collection, doc, deleteDoc, onSnapshot, writeBatch, serverTimestamp, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAjs_-oH_kma3lHU4BCyStN8W0606MYLus",
@@ -127,7 +122,8 @@
         appId: "1:695981452362:web:a0155863e767fa63424ab3"
     };
 
-    let db, auth, firestore;
+    // PERUBAHAN: 'db' (Realtime DB) tidak lagi diperlukan untuk lisensi
+    let auth, firestore;
     let allUsers = [];
     let isAuthReady = false;
     let currentAction = null, currentPayload = null;
@@ -153,7 +149,6 @@
         try {
             const app = initializeApp(firebaseConfig);
             auth = getAuth(app);
-            db = getDatabase(app);
             firestore = getFirestore(app);
             await signInAnonymously(auth);
 
@@ -185,6 +180,7 @@
         return result;
     }
 
+    // PERUBAHAN: Fungsi ini sekarang menggunakan Firestore
     async function handleGenerateLicenses() {
         const count = parseInt(licenseCountInput.value, 10);
         if (isNaN(count) || count < 1) {
@@ -194,14 +190,18 @@
         generateLicensesBtn.disabled = true;
         generateLicensesBtn.textContent = "Generating...";
         try {
-            const licensesRef = ref(db, 'licenseCodes');
+            // Gunakan batch write untuk efisiensi saat membuat banyak lisensi
+            const batch = writeBatch(firestore);
             for (let i = 0; i < count; i++) {
                 const newCode = createLicenseCode();
-                await push(licensesRef, newCode);
+                const licenseRef = doc(firestore, "availableLicenses", newCode);
+                batch.set(licenseRef, { createdAt: serverTimestamp() });
             }
+            await batch.commit();
             showTemporaryMessage(generateMessage, `${count} licenses generated successfully!`);
-            fetchUnactivatedLicenses();
+            fetchUnactivatedLicenses(); // Refresh daftar
         } catch (error) {
+            console.error("Error generating licenses:", error);
             showTemporaryMessage(generateMessage, "An error occurred.", true);
         } finally {
             generateLicensesBtn.disabled = false;
@@ -209,18 +209,20 @@
         }
     }
     
+    // PERUBAHAN: Fungsi ini sekarang mengambil data dari Firestore
     async function fetchUnactivatedLicenses() {
         loadingUnactivated.textContent = "Loading...";
         try {
-            const licensesRef = ref(db, 'licenseCodes');
-            const snapshot = await get(licensesRef);
-            const licenses = [];
-            if (snapshot.exists()) {
-                snapshot.forEach(childSnapshot => {
-                    licenses.push({ key: childSnapshot.key, code: childSnapshot.val() });
-                });
-            }
-            licenses.reverse();
+            const licensesCol = collection(firestore, 'availableLicenses');
+            // Urutkan berdasarkan tanggal pembuatan, yang terbaru di atas
+            const q = query(licensesCol, orderBy("createdAt", "desc"), limit(100));
+            const querySnapshot = await getDocs(q);
+            
+            const licenses = querySnapshot.docs.map(doc => ({
+                code: doc.id,
+                ...doc.data()
+            }));
+
             displayUnactivatedLicenses(licenses);
         } catch (error) {
             console.error("Failed to fetch licenses:", error);
@@ -234,7 +236,7 @@
             unactivatedLicensesList.innerHTML = '<p class="text-center text-gray-400">No available licenses.</p>';
             return;
         }
-        licenses.forEach(({ key, code }) => {
+        licenses.forEach(({ code }) => {
             const licenseDiv = document.createElement('div');
             licenseDiv.className = 'license-item p-3 bg-gray-900/50 rounded-lg mb-2';
             licenseDiv.innerHTML = `
@@ -242,7 +244,7 @@
                 <div class="flex gap-2 justify-center">
                     <button data-code="${code}" class="copy-btn premium-button text-white font-semibold px-3 py-1 text-sm rounded-lg flex-1">Copy</button>
                     <button data-code="${code}" class="share-btn premium-button text-white font-semibold px-3 py-1 text-sm rounded-lg flex-1">Share</button>
-                    <button data-key="${key}" data-code="${code}" class="delete-btn danger-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Delete</button>
+                    <button data-code="${code}" class="delete-btn danger-button text-white font-semibold px-3 py-1 text-sm rounded-lg">Delete</button>
                 </div>
             `;
             unactivatedLicensesList.appendChild(licenseDiv);
@@ -282,12 +284,15 @@
         });
     }
     
-    async function deleteLicense(licenseKey, element) {
+    // PERUBAHAN: Fungsi ini sekarang menghapus dokumen dari Firestore
+    async function deleteUnactivatedLicense(licenseCode, element) {
         try {
             element.classList.add('fade-out');
             await new Promise(resolve => setTimeout(resolve, 500));
-            const licenseRef = ref(db, `licenseCodes/${licenseKey}`);
-            await remove(licenseRef);
+            const licenseRef = doc(firestore, 'availableLicenses', licenseCode);
+            await deleteDoc(licenseRef);
+            // Elemen akan hilang secara otomatis saat daftar di-refresh, 
+            // namun menghapusnya secara manual memberikan feedback instan.
             element.remove();
         } catch (error) {
             console.error("Failed to delete license:", error);
@@ -359,9 +364,9 @@ Heri Sanjaya`;
                 alert('Share feature is not supported in this browser. Please copy the text manually.');
             }
         } else if (target.classList.contains('delete-btn')) {
-            const key = target.dataset.key;
-            currentAction = 'deleteLicense';
-            currentPayload = { key, element };
+            // PERUBAHAN: Payload sekarang adalah licenseCode
+            currentAction = 'deleteUnactivatedLicense';
+            currentPayload = { licenseCode: code, element };
             modalTitle.textContent = "Confirm Deletion";
             modalText.textContent = `Are you sure you want to delete license ${code}?`;
             confirmationModal.classList.remove('hidden');
@@ -385,8 +390,9 @@ Heri Sanjaya`;
         confirmActionBtn.disabled = true;
         if (currentAction === 'terminateUser') {
             await terminateUser(currentPayload.docId, currentPayload.element);
-        } else if (currentAction === 'deleteLicense') {
-            await deleteLicense(currentPayload.key, currentPayload.element);
+        } else if (currentAction === 'deleteUnactivatedLicense') {
+            // PERUBAHAN: Memanggil fungsi yang benar
+            await deleteUnactivatedLicense(currentPayload.licenseCode, currentPayload.element);
         }
         confirmationModal.classList.add('hidden');
         confirmActionBtn.disabled = false;
