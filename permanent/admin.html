@@ -63,6 +63,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-1 flex flex-col gap-8">
+                    
                     <div class="card-container rounded-xl p-6">
                         <h2 class="cinzel-font text-2xl font-bold text-white mb-4">Generate Licenses</h2>
                         <div class="flex flex-col sm:flex-row gap-4">
@@ -77,6 +78,17 @@
                         <div id="unactivatedLicensesList" class="max-h-96 overflow-y-auto pr-2">
                             <p id="loadingUnactivated" class="text-center text-gray-400">Loading...</p>
                         </div>
+                    </div>
+
+                    <!-- PERUBAHAN: Card untuk URL Management dipindahkan ke bawah -->
+                    <div class="card-container rounded-xl p-6">
+                        <h2 class="cinzel-font text-2xl font-bold text-white mb-4">App Configuration</h2>
+                        <label for="currentUrlInput" class="text-sm text-gray-400 mb-2 block">Current URL</label>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <input type="url" id="currentUrlInput" placeholder="https://your-url.com" class="premium-input w-full px-4 py-3 rounded-lg text-white placeholder-gray-500">
+                            <button id="saveUrlBtn" class="premium-button text-white font-semibold px-6 py-3 rounded-lg whitespace-nowrap">Save</button>
+                        </div>
+                        <p id="urlMessage" class="mt-2 h-4 text-sm"></p>
                     </div>
                 </div>
 
@@ -109,8 +121,7 @@
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    // PERUBAHAN: Realtime Database tidak lagi digunakan untuk lisensi
-    import { getFirestore, collection, doc, deleteDoc, onSnapshot, writeBatch, serverTimestamp, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, doc, deleteDoc, onSnapshot, writeBatch, serverTimestamp, getDocs, query, orderBy, limit, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAjs_-oH_kma3lHU4BCyStN8W0606MYLus",
@@ -122,7 +133,6 @@
         appId: "1:695981452362:web:a0155863e767fa63424ab3"
     };
 
-    // PERUBAHAN: 'db' (Realtime DB) tidak lagi diperlukan untuk lisensi
     let auth, firestore;
     let allUsers = [];
     let isAuthReady = false;
@@ -144,6 +154,9 @@
     const globalRefreshIcon = document.getElementById('globalRefreshIcon');
     const unactivatedLicensesList = document.getElementById('unactivatedLicensesList');
     const loadingUnactivated = document.getElementById('loadingUnactivated');
+    const currentUrlInput = document.getElementById('currentUrlInput');
+    const saveUrlBtn = document.getElementById('saveUrlBtn');
+    const urlMessage = document.getElementById('urlMessage');
 
     async function initialize() {
         try {
@@ -155,6 +168,7 @@
             auth.onAuthStateChanged(user => {
                 if (user) {
                     isAuthReady = true;
+                    fetchCurrentUrl();
                     listenForActiveUsers();
                     fetchUnactivatedLicenses();
                 }
@@ -170,6 +184,43 @@
         setTimeout(() => element.textContent = "", duration);
     }
 
+    async function fetchCurrentUrl() {
+        try {
+            const configRef = doc(firestore, "config", "settings");
+            const docSnap = await getDoc(configRef);
+            if (docSnap.exists()) {
+                currentUrlInput.value = docSnap.data().currentURL || '';
+            } else {
+                console.log("No config document found!");
+            }
+        } catch (error)
+        {
+            console.error("Error fetching URL:", error);
+            showTemporaryMessage(urlMessage, "Failed to load URL.", true);
+        }
+    }
+
+    async function handleSaveUrl() {
+        const newUrl = currentUrlInput.value.trim();
+        if (!newUrl) {
+            showTemporaryMessage(urlMessage, "URL cannot be empty.", true);
+            return;
+        }
+        saveUrlBtn.disabled = true;
+        saveUrlBtn.textContent = "Saving...";
+        try {
+            const configRef = doc(firestore, "config", "settings");
+            await setDoc(configRef, { currentURL: newUrl }, { merge: true });
+            showTemporaryMessage(urlMessage, "URL saved successfully!");
+        } catch (error) {
+            console.error("Error saving URL:", error);
+            showTemporaryMessage(urlMessage, "An error occurred.", true);
+        } finally {
+            saveUrlBtn.disabled = false;
+            saveUrlBtn.textContent = "Save";
+        }
+    }
+
     function createLicenseCode() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let result = '';
@@ -180,7 +231,6 @@
         return result;
     }
 
-    // PERUBAHAN: Fungsi ini sekarang menggunakan Firestore
     async function handleGenerateLicenses() {
         const count = parseInt(licenseCountInput.value, 10);
         if (isNaN(count) || count < 1) {
@@ -190,7 +240,6 @@
         generateLicensesBtn.disabled = true;
         generateLicensesBtn.textContent = "Generating...";
         try {
-            // Gunakan batch write untuk efisiensi saat membuat banyak lisensi
             const batch = writeBatch(firestore);
             for (let i = 0; i < count; i++) {
                 const newCode = createLicenseCode();
@@ -199,7 +248,7 @@
             }
             await batch.commit();
             showTemporaryMessage(generateMessage, `${count} licenses generated successfully!`);
-            fetchUnactivatedLicenses(); // Refresh daftar
+            fetchUnactivatedLicenses();
         } catch (error) {
             console.error("Error generating licenses:", error);
             showTemporaryMessage(generateMessage, "An error occurred.", true);
@@ -209,12 +258,10 @@
         }
     }
     
-    // PERUBAHAN: Fungsi ini sekarang mengambil data dari Firestore
     async function fetchUnactivatedLicenses() {
         loadingUnactivated.textContent = "Loading...";
         try {
             const licensesCol = collection(firestore, 'availableLicenses');
-            // Urutkan berdasarkan tanggal pembuatan, yang terbaru di atas
             const q = query(licensesCol, orderBy("createdAt", "desc"), limit(100));
             const querySnapshot = await getDocs(q);
             
@@ -284,15 +331,12 @@
         });
     }
     
-    // PERUBAHAN: Fungsi ini sekarang menghapus dokumen dari Firestore
     async function deleteUnactivatedLicense(licenseCode, element) {
         try {
             element.classList.add('fade-out');
             await new Promise(resolve => setTimeout(resolve, 500));
             const licenseRef = doc(firestore, 'availableLicenses', licenseCode);
             await deleteDoc(licenseRef);
-            // Elemen akan hilang secara otomatis saat daftar di-refresh, 
-            // namun menghapusnya secara manual memberikan feedback instan.
             element.remove();
         } catch (error) {
             console.error("Failed to delete license:", error);
@@ -317,6 +361,7 @@
         globalRefreshBtn.disabled = true;
         searchEmailInput.value = '';
         displayUsers(allUsers);
+        await fetchCurrentUrl();
         await fetchUnactivatedLicenses();
         setTimeout(() => {
             globalRefreshIcon.classList.remove('spin');
@@ -326,6 +371,7 @@
 
     // === Event Listeners ===
     initialize();
+    saveUrlBtn.addEventListener('click', handleSaveUrl);
     generateLicensesBtn.addEventListener('click', handleGenerateLicenses);
     searchEmailInput.addEventListener('input', () => displayUsers(allUsers));
     globalRefreshBtn.addEventListener('click', handleGlobalRefresh);
@@ -364,7 +410,6 @@ Heri Sanjaya`;
                 alert('Share feature is not supported in this browser. Please copy the text manually.');
             }
         } else if (target.classList.contains('delete-btn')) {
-            // PERUBAHAN: Payload sekarang adalah licenseCode
             currentAction = 'deleteUnactivatedLicense';
             currentPayload = { licenseCode: code, element };
             modalTitle.textContent = "Confirm Deletion";
@@ -391,7 +436,6 @@ Heri Sanjaya`;
         if (currentAction === 'terminateUser') {
             await terminateUser(currentPayload.docId, currentPayload.element);
         } else if (currentAction === 'deleteUnactivatedLicense') {
-            // PERUBAHAN: Memanggil fungsi yang benar
             await deleteUnactivatedLicense(currentPayload.licenseCode, currentPayload.element);
         }
         confirmationModal.classList.add('hidden');
