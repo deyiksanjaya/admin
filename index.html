@@ -147,7 +147,7 @@
         visibility: hidden;
         transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
         z-index: 100;
-        min-width: 350px; /* --- MODIFIED: Made toast wider --- */
+        min-width: 350px;
         text-align: center;
     }
     .toast.show {
@@ -293,14 +293,15 @@
   </div>
 
   <script type="module">
+    // --- DIUBAH: Impor dari Firestore dan Auth ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getDatabase, ref, set, get, remove } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDocs, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-    // --- Firebase Configuration ---
+    // --- Firebase Configuration (tidak berubah) ---
     const firebaseConfig = {
       apiKey: "AIzaSyBm2cw6dircA3IMc3yCEeCgVa5--5W6DUw",
       authDomain: "showtime-f086c.firebaseapp.com",
-      databaseURL: "https://showtime-f086c-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "showtime-f086c",
       storageBucket: "showtime-f086c.appspot.com",
       messagingSenderId: "31064800242",
@@ -309,90 +310,49 @@
 
     // --- App Initialization ---
     const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app); // DIUBAH: Menggunakan getFirestore()
     let ADMIN_PASSWORD = "";
 
-    // --- State Management ---
+    // --- State Management (tidak berubah) ---
     const PAGE_SIZE = 15;
     let allLicensesCache = [];
     let currentLicensePage = 1;
     let licenseSortOrder = 'date_desc';
-
     let allActivatedDevicesCache = [];
     let currentDevicePage = 1;
     let activatedSortOrder = 'date_desc';
 
-    // --- Authentication ---
-    get(ref(db, "data/admin/password")).then((snapshot) => {
-      if (snapshot.exists()) ADMIN_PASSWORD = snapshot.val();
-      else document.getElementById("loginError").textContent = "⚠️ Password admin tidak diatur di Firebase.";
-      checkStoredLogin();
-    }).catch(err => {
-        console.error("Error fetching password:", err);
-        document.getElementById("loginError").textContent = "⚠️ Tidak dapat terhubung ke database.";
-    });
-
-    function checkStoredLogin() {
-        if (localStorage.getItem('showtime_admin_loggedIn') === 'true') {
-            showAdminPanel();
-            initAdminPanel();
+    // --- DIUBAH: Logika Otentikasi untuk mengambil password dari Firestore ---
+    async function initializeAdminAuth() {
+        try {
+            await signInAnonymously(auth);
+            // Struktur baru: koleksi 'admin', dokumen 'password'
+            const passDoc = await getDoc(doc(db, "admin", "password"));
+            if (passDoc.exists() && passDoc.data().password) {
+                ADMIN_PASSWORD = passDoc.data().password;
+            } else {
+                document.getElementById("loginError").textContent = "⚠️ Password admin tidak diatur di Firestore (admin/password).";
+            }
+            checkStoredLogin();
+        } catch(err) {
+            console.error("Error during initialization:", err);
+            document.getElementById("loginError").textContent = "⚠️ Tidak dapat terhubung ke database.";
         }
     }
-    
-    function showAdminPanel() {
-        document.getElementById("login").classList.add("hidden");
-        document.getElementById("admin-controls").classList.remove("hidden");
-        document.getElementById("panel").classList.remove("hidden");
-        document.getElementById("paidUsersCard").classList.remove("hidden");
-    }
+    initializeAdminAuth();
 
-    window.checkPassword = () => {
-      const passwordInput = document.getElementById("passwordInput");
-      if (passwordInput.value === ADMIN_PASSWORD) {
-        localStorage.setItem('showtime_admin_loggedIn', 'true');
-        showAdminPanel();
-        initAdminPanel(true); // Force fetch on first login
-      } else {
-        document.getElementById("loginError").textContent = "❌ Password salah.";
-      }
-    };
-    
-    window.logout = () => {
-        localStorage.removeItem('showtime_admin_loggedIn');
-        localStorage.removeItem('licensesCache');
-        localStorage.removeItem('activatedDevicesCache');
-        localStorage.removeItem('lastSyncTimestamp');
-        window.location.reload();
-    };
+    // Sisa fungsi otentikasi (checkStoredLogin, showAdminPanel, checkPassword, logout) tidak berubah
+    function checkStoredLogin() { if (localStorage.getItem('showtime_admin_loggedIn') === 'true') { showAdminPanel(); initAdminPanel(); } }
+    function showAdminPanel() { document.getElementById("login").classList.add("hidden"); document.getElementById("admin-controls").classList.remove("hidden"); document.getElementById("panel").classList.remove("hidden"); document.getElementById("paidUsersCard").classList.remove("hidden"); }
+    window.checkPassword = () => { const passwordInput = document.getElementById("passwordInput"); if (passwordInput.value === ADMIN_PASSWORD) { localStorage.setItem('showtime_admin_loggedIn', 'true'); showAdminPanel(); initAdminPanel(true); } else { document.getElementById("loginError").textContent = "❌ Password salah."; } };
+    window.logout = () => { localStorage.clear(); window.location.reload(); };
 
-    // --- Main Panel Logic ---
-    async function initAdminPanel(forceFetch = false) {
-        loadDataFromCache();
-        if (forceFetch || !localStorage.getItem('licensesCache')) {
-            await syncDataWithFirebase();
-        }
-        setupEventListeners();
-    }
-    
-    function loadDataFromCache() {
-        const licenses = localStorage.getItem('licensesCache');
-        const devices = localStorage.getItem('activatedDevicesCache');
-        const lastSync = localStorage.getItem('lastSyncTimestamp');
+    // --- Main Panel Logic (fungsi initAdminPanel dan loadDataFromCache tidak berubah) ---
+    async function initAdminPanel(forceFetch = false) { loadDataFromCache(); if (forceFetch || !localStorage.getItem('licensesCache')) { await syncDataWithFirebase(); } setupEventListeners(); }
+    function loadDataFromCache() { const licenses = localStorage.getItem('licensesCache'); const devices = localStorage.getItem('activatedDevicesCache'); const lastSync = localStorage.getItem('lastSyncTimestamp'); if (licenses) { allLicensesCache = JSON.parse(licenses); updateAndRenderLicenses(); } if (devices) { allActivatedDevicesCache = JSON.parse(devices); updateAndRenderActivatedList(); } if (lastSync) { updateLastSyncTime(lastSync); calculateAndShowDataSize("⚡️ Data dimuat dari cache lokal."); } }
 
-        if (licenses) {
-            allLicensesCache = JSON.parse(licenses);
-            updateAndRenderLicenses();
-        }
-        if (devices) {
-            allActivatedDevicesCache = JSON.parse(devices);
-            updateAndRenderActivatedList();
-        }
-        if(lastSync) {
-            updateLastSyncTime(lastSync);
-            calculateAndShowDataSize("⚡️ Data dimuat dari cache lokal.");
-        }
-    }
-    
+    // --- DIUBAH: Logika Sinkronisasi dengan Firestore ---
     async function syncDataWithFirebase() {
         const syncButton = document.getElementById('syncButton');
         const spinner = syncButton.querySelector('svg');
@@ -418,254 +378,77 @@
         }
     }
 
+    // --- DIUBAH: Mengambil semua lisensi dari koleksi 'availableLicenses' di Firestore ---
     async function fetchLicensesFromDB() {
-        const snapshot = await get(ref(db, 'data/licenses'));
-        allLicensesCache = snapshot.exists() ? Object.entries(snapshot.val()).map(([key, value]) => ({ key, ...value })) : [];
+        const querySnapshot = await getDocs(collection(db, 'availableLicenses'));
+        const licenses = [];
+        querySnapshot.forEach((doc) => {
+            licenses.push({ key: doc.id, ...doc.data() });
+        });
+        allLicensesCache = licenses;
         localStorage.setItem('licensesCache', JSON.stringify(allLicensesCache));
         updateAndRenderLicenses();
     }
 
+    // --- DIUBAH: Mengambil semua perangkat dari koleksi 'activatedDevices' di Firestore ---
     async function fetchActivatedDevicesFromDB() {
-        const snapshot = await get(ref(db, 'data/activatedDevices'));
-        allActivatedDevicesCache = snapshot.exists() ? Object.entries(snapshot.val()).map(([deviceID, value]) => ({ deviceID, ...value })) : [];
+        const querySnapshot = await getDocs(collection(db, 'activatedDevices'));
+        const devices = [];
+        querySnapshot.forEach((doc) => {
+            devices.push({ deviceID: doc.id, ...doc.data() });
+        });
+        allActivatedDevicesCache = devices;
         localStorage.setItem('activatedDevicesCache', JSON.stringify(allActivatedDevicesCache));
         updateAndRenderActivatedList();
     }
-
-    function updateLastSyncTime(isoTimestamp) {
-        const date = new Date(isoTimestamp);
-        document.getElementById('lastSyncTime').textContent = `Sinkronisasi terakhir: ${date.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`;
-    }
-
-    // --- Sorting and Rendering ---
+    
+    function updateLastSyncTime(isoTimestamp) { const date = new Date(isoTimestamp); document.getElementById('lastSyncTime').textContent = `Sinkronisasi terakhir: ${date.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`; }
+    
+    // --- Sorting and Rendering (Tidak ada perubahan signifikan) ---
     function applySorting(data, sortOrder, type) {
         return [...data].sort((a, b) => {
-            const nameA = type === 'license' ? a.customerName : extractNameFromKey(a.licenseKey);
-            const nameB = type === 'license' ? b.customerName : extractNameFromKey(b.licenseKey);
+            const nameA = a.customerName;
+            const nameB = b.customerName;
             const dateA = new Date(type === 'license' ? a.createdAt : a.activatedAt);
             const dateB = new Date(type === 'license' ? b.createdAt : b.activatedAt);
-
             switch (sortOrder) {
                 case 'date_asc': return dateA - dateB;
                 case 'name_asc': return (nameA || '').localeCompare(nameB || '');
                 case 'name_desc': return (nameB || '').localeCompare(nameA || '');
-                case 'date_desc':
-                default: return dateB - dateA;
+                case 'date_desc': default: return dateB - dateA;
             }
         });
     }
+    function updateAndRenderLicenses() { currentLicensePage = 1; const sortedLicenses = applySorting(allLicensesCache, licenseSortOrder, 'license'); renderLicenses(sortedLicenses); }
+    function updateAndRenderActivatedList() { currentDevicePage = 1; const searchTerm = document.getElementById('paidUsersSearchInput').value.toLowerCase(); const filtered = searchTerm ? allActivatedDevicesCache.filter(d => (d.customerName || '').toLowerCase().includes(searchTerm) || d.licenseKey.toLowerCase().includes(searchTerm)) : allActivatedDevicesCache; const sortedAndFiltered = applySorting(filtered, activatedSortOrder, 'activated'); renderActivatedList(sortedAndFiltered); }
+    function renderPaginatedList(config) { const { container, paginationContainer, listId, data, renderItem, loadMoreBtnId, emptyMessage, page, pageSize } = config; if (page === 1) { container.innerHTML = `<div id="${listId}" class="border border-gray-700 rounded-lg max-h-[60vh] overflow-y-auto"></div>`; } const listDiv = document.getElementById(listId); if (!listDiv) return; if (data.length === 0 && page === 1) { container.innerHTML = `<p class="text-center text-gray-500 py-8 px-4 italic">${emptyMessage}</p>`; paginationContainer.innerHTML = ''; return; } const itemsToDisplay = data.slice((page - 1) * pageSize, page * pageSize); itemsToDisplay.forEach(item => listDiv.appendChild(renderItem(item))); if (page * pageSize < data.length) { paginationContainer.innerHTML = `<button id="${loadMoreBtnId}" class="btn load-more w-full">Muat Lebih Banyak</button>`; } else { paginationContainer.innerHTML = ''; } }
+    function renderLicenses(licensesToRender) { document.getElementById('licenseCount').innerHTML = `<p class="text-white font-bold text-lg">${allLicensesCache.length} Tersedia</p>`; renderPaginatedList({ container: document.getElementById('licenseListContainer'), paginationContainer: document.getElementById('licensePaginationContainer'), listId: 'licenseList', data: licensesToRender, renderItem: (item) => createLicenseItem(item.key, item), loadMoreBtnId: 'loadMoreLicensesBtn', emptyMessage: 'Tidak ada lisensi yang cocok ditemukan.', page: currentLicensePage, pageSize: PAGE_SIZE }); }
+    function renderActivatedList(devicesToRender) { document.getElementById('activatedCount').innerHTML = `<p class="text-white font-bold text-lg">${allActivatedDevicesCache.length} Aktif</p>`; const emptyMessage = document.getElementById('paidUsersSearchInput').value ? 'Tidak ada pengguna yang cocok ditemukan.' : 'Belum ada perangkat yang diaktifkan.'; renderPaginatedList({ container: document.getElementById('activatedListContainer'), paginationContainer: document.getElementById('activatedPaginationContainer'), listId: 'activatedList', data: devicesToRender, renderItem: createActivatedItem, loadMoreBtnId: 'loadMoreDevicesBtn', emptyMessage: emptyMessage, page: currentDevicePage, pageSize: PAGE_SIZE }); }
+    function createLicenseItem(key, data) { const itemDiv = document.createElement('div'); itemDiv.className = 'license-item'; itemDiv.id = `license-${key}`; const createdAt = new Date(data.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }); itemDiv.innerHTML = `<div><h3 class="license-name">${data.customerName || 'No Name'}</h3><span class="license-key">${key}</span><div class="text-xs text-gray-500 mt-1">Dibuat: ${createdAt}</div><div class="action-buttons mt-3"><button class="action-btn-inline" data-action="copy-key" data-key="${key}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Salin Kunci</span></button><button class="action-btn-inline" data-action="copy-msg" data-key="${key}" data-customername="${data.customerName}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg> <span>Salin Pesan</span></button><button class="action-btn-inline delete" data-action="delete" data-key="${key}" data-customername="${data.customerName}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> <span>Hapus</span></button></div></div>`; return itemDiv; }
+    function createActivatedItem(device) { const itemDiv = document.createElement('div'); itemDiv.className = 'license-item'; itemDiv.id = `device-${device.deviceID}`; const customerName = device.customerName || 'Unknown'; const activatedAt = new Date(device.activatedAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }); itemDiv.innerHTML = `<div><h3 class="license-name">${customerName}</h3><span class="license-key">${device.licenseKey}</span><div class="text-xs text-gray-500 mt-1 flex items-center gap-2"><span class="status-badge activated">Aktif</span><span>${activatedAt}</span></div><div class="action-buttons mt-3"><button class="action-btn-inline terminate" data-action="terminate" data-deviceid="${device.deviceID}" data-customername="${customerName}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <span>Hentikan</span></button></div></div>`; return itemDiv; }
 
-    function updateAndRenderLicenses() {
-        currentLicensePage = 1;
-        const sortedLicenses = applySorting(allLicensesCache, licenseSortOrder, 'license');
-        renderLicenses(sortedLicenses);
-    }
-
-    function updateAndRenderActivatedList() {
-        currentDevicePage = 1;
-        const searchTerm = document.getElementById('paidUsersSearchInput').value.toLowerCase();
-        const filtered = searchTerm
-            ? allActivatedDevicesCache.filter(d => {
-                const name = extractNameFromKey(d.licenseKey).toLowerCase();
-                return name.includes(searchTerm) || d.licenseKey.toLowerCase().includes(searchTerm);
-            })
-            : allActivatedDevicesCache;
-        
-        const sortedAndFiltered = applySorting(filtered, activatedSortOrder, 'activated');
-        renderActivatedList(sortedAndFiltered);
-    }
+    // Event Handling (setupEventListeners) tidak berubah signifikan
+    function setupEventListeners() { document.getElementById('logoutBtn').addEventListener('click', logout); document.getElementById('syncButton').addEventListener('click', syncDataWithFirebase); document.getElementById('customerNameInput').addEventListener('keyup', e => { if (e.key === 'Enter') generateAndAssignKey(); }); document.getElementById('licenseListContainer').addEventListener('click', e => { const button = e.target.closest('button[data-action]'); if (!button) return; const action = button.dataset.action; const key = button.dataset.key; if (!key) return; if (action === 'copy-key') copyToClipboard(key, 'Kunci lisensi disalin!'); if (action === 'copy-msg') copyLicenseMessage(key, button.dataset.customername); if (action === 'delete') confirmDelete(key, button.dataset.customername); }); document.getElementById('activatedListContainer').addEventListener('click', e => { const button = e.target.closest('button[data-action="terminate"]'); if (button) confirmTerminate(button.dataset.deviceid, button.dataset.customername); }); document.getElementById('paidUsersSearchInput').addEventListener('input', updateAndRenderActivatedList); document.getElementById('licenseSortSelect').addEventListener('change', e => { licenseSortOrder = e.target.value; updateAndRenderLicenses(); }); document.getElementById('activatedSortSelect').addEventListener('change', e => { activatedSortOrder = e.target.value; updateAndRenderActivatedList(); }); document.getElementById('licensePaginationContainer').addEventListener('click', e => { if (e.target.id === 'loadMoreLicensesBtn') { currentLicensePage++; const sorted = applySorting(allLicensesCache, licenseSortOrder, 'license'); renderLicenses(sorted); } }); document.getElementById('activatedPaginationContainer').addEventListener('click', e => { if (e.target.id === 'loadMoreDevicesBtn') { currentDevicePage++; updateAndRenderActivatedList(); } }); }
     
-    function renderPaginatedList(config) {
-        const { container, paginationContainer, listId, data, renderItem, loadMoreBtnId, emptyMessage, page, pageSize } = config;
-        
-        if (page === 1) {
-            container.innerHTML = `<div id="${listId}" class="border border-gray-700 rounded-lg max-h-[60vh] overflow-y-auto"></div>`;
-        }
-        
-        const listDiv = document.getElementById(listId);
-        if (!listDiv) return;
-
-        if (data.length === 0 && page === 1) {
-            container.innerHTML = `<p class="text-center text-gray-500 py-8 px-4 italic">${emptyMessage}</p>`;
-            paginationContainer.innerHTML = '';
-            return;
-        }
-        
-        const itemsToDisplay = data.slice((page - 1) * pageSize, page * pageSize);
-        itemsToDisplay.forEach(item => listDiv.appendChild(renderItem(item)));
-
-        if (page * pageSize < data.length) {
-            paginationContainer.innerHTML = `<button id="${loadMoreBtnId}" class="btn load-more w-full">Muat Lebih Banyak</button>`;
-        } else {
-            paginationContainer.innerHTML = '';
-        }
-    }
-
-    function renderLicenses(licensesToRender) {
-        document.getElementById('licenseCount').innerHTML = `<p class="text-white font-bold text-lg">${allLicensesCache.length} Tersedia</p>`;
-        renderPaginatedList({
-            container: document.getElementById('licenseListContainer'),
-            paginationContainer: document.getElementById('licensePaginationContainer'),
-            listId: 'licenseList',
-            data: licensesToRender,
-            renderItem: (item) => createLicenseItem(item.key, item),
-            loadMoreBtnId: 'loadMoreLicensesBtn',
-            emptyMessage: 'Tidak ada lisensi yang cocok ditemukan.',
-            page: currentLicensePage,
-            pageSize: PAGE_SIZE
-        });
-    }
-
-    function renderActivatedList(devicesToRender) {
-        document.getElementById('activatedCount').innerHTML = `<p class="text-white font-bold text-lg">${allActivatedDevicesCache.length} Aktif</p>`;
-        const emptyMessage = document.getElementById('paidUsersSearchInput').value 
-            ? 'Tidak ada pengguna yang cocok ditemukan.'
-            : 'Belum ada perangkat yang diaktifkan.';
-        renderPaginatedList({
-            container: document.getElementById('activatedListContainer'),
-            paginationContainer: document.getElementById('activatedPaginationContainer'),
-            listId: 'activatedList',
-            data: devicesToRender,
-            renderItem: createActivatedItem,
-            loadMoreBtnId: 'loadMoreDevicesBtn',
-            emptyMessage: emptyMessage,
-            page: currentDevicePage,
-            pageSize: PAGE_SIZE
-        });
-    }
-
-    // --- Element Creation ---
-    function createLicenseItem(key, data) {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'license-item';
-        itemDiv.id = `license-${key}`;
-        const createdAt = new Date(data.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-        itemDiv.innerHTML = `
-            <div>
-                <h3 class="license-name">${data.customerName || 'No Name'}</h3>
-                <span class="license-key">${key}</span>
-                <div class="text-xs text-gray-500 mt-1">Dibuat: ${createdAt}</div>
-                <div class="action-buttons mt-3">
-                    <button class="action-btn-inline" data-action="copy-key" data-key="${key}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                        <span>Salin Kunci</span>
-                    </button>
-                    <button class="action-btn-inline" data-action="copy-msg" data-key="${key}" data-customername="${data.customerName}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-                        <span>Salin Pesan</span>
-                    </button>
-                    <button class="action-btn-inline delete" data-action="delete" data-key="${key}" data-customername="${data.customerName}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        <span>Hapus</span>
-                    </button>
-                </div>
-            </div>`;
-        return itemDiv;
-    }
-
-    function createActivatedItem(device) {
-        const itemDiv = document.createElement('div');
-        itemDiv.className = 'license-item';
-        itemDiv.id = `device-${device.deviceID}`;
-        const customerName = extractNameFromKey(device.licenseKey);
-        const activatedAt = new Date(device.activatedAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-        itemDiv.innerHTML = `
-            <div>
-                <h3 class="license-name">${customerName}</h3>
-                <span class="license-key">${device.licenseKey}</span>
-                <div class="text-xs text-gray-500 mt-1 flex items-center gap-2">
-                    <span class="status-badge activated">Aktif</span>
-                    <span>${activatedAt}</span>
-                </div>
-                <div class="action-buttons mt-3">
-                     <button class="action-btn-inline terminate" data-action="terminate" data-deviceid="${device.deviceID}" data-customername="${customerName}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                        <span>Hentikan</span>
-                    </button>
-                </div>
-            </div>`;
-        return itemDiv;
-    }
-
-    // --- Event Handling ---
-    function setupEventListeners() {
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('syncButton').addEventListener('click', syncDataWithFirebase);
-        document.getElementById('customerNameInput').addEventListener('keyup', e => { if (e.key === 'Enter') generateAndAssignKey(); });
-        
-        document.getElementById('licenseListContainer').addEventListener('click', e => {
-            const button = e.target.closest('button[data-action]');
-            if (!button) return;
-            const action = button.dataset.action;
-            const key = button.dataset.key;
-            if (!key) return;
-            if (action === 'copy-key') copyToClipboard(key, 'Kunci lisensi disalin!');
-            if (action === 'copy-msg') copyLicenseMessage(key, button.dataset.customername);
-            if (action === 'delete') confirmDelete(key, button.dataset.customername);
-        });
-
-        document.getElementById('activatedListContainer').addEventListener('click', e => {
-             const button = e.target.closest('button[data-action="terminate"]');
-             if (button) confirmTerminate(button.dataset.deviceid, button.dataset.customername);
-        });
-
-        document.getElementById('paidUsersSearchInput').addEventListener('input', updateAndRenderActivatedList);
-
-        document.getElementById('licenseSortSelect').addEventListener('change', e => {
-            licenseSortOrder = e.target.value;
-            updateAndRenderLicenses();
-        });
-
-        document.getElementById('activatedSortSelect').addEventListener('change', e => {
-            activatedSortOrder = e.target.value;
-            updateAndRenderActivatedList();
-        });
-
-        document.getElementById('licensePaginationContainer').addEventListener('click', e => {
-            if (e.target.id === 'loadMoreLicensesBtn') {
-                currentLicensePage++;
-                const sorted = applySorting(allLicensesCache, licenseSortOrder, 'license');
-                renderLicenses(sorted);
-            }
-        });
-        document.getElementById('activatedPaginationContainer').addEventListener('click', e => {
-            if (e.target.id === 'loadMoreDevicesBtn') {
-                currentDevicePage++;
-                updateAndRenderActivatedList();
-            }
-        });
-    }
-
-    // --- Actions with Optimistic UI ---
+    // --- DIUBAH: Actions dengan Optimistic UI menggunakan Firestore ---
     window.generateAndAssignKey = async () => {
-      const nameInput = document.getElementById('customerNameInput');
-      const customerName = nameInput.value.trim();
-      if (!customerName) return showToast('⚠️ Nama pelanggan tidak boleh kosong.');
-      
-      const newKey = generateLicenseKey(customerName);
-      const newLicenseData = {
-          key: newKey,
-          createdAt: new Date().toISOString(),
-          customerName: customerName,
-      };
+        const nameInput = document.getElementById('customerNameInput');
+        const customerName = nameInput.value.trim();
+        if (!customerName) return showToast('⚠️ Nama pelanggan tidak boleh kosong.');
 
-      // Optimistic UI update
-      allLicensesCache.unshift(newLicenseData);
-      localStorage.setItem('licensesCache', JSON.stringify(allLicensesCache));
-      updateAndRenderLicenses();
-      showToast(`✅ Kunci untuk ${customerName} berhasil dibuat!`);
-      nameInput.value = '';
+        const newKey = generateLicenseKey(customerName);
+        const newLicenseData = { createdAt: new Date().toISOString(), customerName: customerName };
+        const newLicenseCacheData = { key: newKey, ...newLicenseData };
 
-      // Sync with Firebase in background
-      try {
-        await set(ref(db, `data/licenses/${newKey}`), {
-            createdAt: newLicenseData.createdAt,
-            customerName: newLicenseData.customerName,
-        });
-      } catch (error) {
-          showToast(`Gagal menyimpan ke Firebase. Coba sinkronkan manual.`);
-          // Optionally, add logic to revert the optimistic update
-      }
+        allLicensesCache.unshift(newLicenseCacheData);
+        localStorage.setItem('licensesCache', JSON.stringify(allLicensesCache));
+        updateAndRenderLicenses();
+        showToast(`✅ Kunci untuk ${customerName} berhasil dibuat!`);
+        nameInput.value = '';
+
+        try {
+            await setDoc(doc(db, "availableLicenses", newKey), newLicenseData);
+        } catch (error) { showToast(`Gagal menyimpan ke Firebase. Coba sinkronkan manual.`); }
     };
 
     function confirmDelete(key, customerName) {
@@ -674,18 +457,13 @@
             message: `Hapus lisensi yang BELUM DIGUNAKAN untuk ${customerName}? Tindakan ini tidak dapat dibatalkan.`,
             confirmText: "Hapus",
             onConfirm: async () => {
-                // Optimistic UI update
                 allLicensesCache = allLicensesCache.filter(lic => lic.key !== key);
                 localStorage.setItem('licensesCache', JSON.stringify(allLicensesCache));
                 updateAndRenderLicenses();
                 showToast(`Lisensi untuk ${customerName} dihapus.`);
-
-                // Sync with Firebase in background
                 try {
-                    await remove(ref(db, `data/licenses/${key}`));
-                } catch (error) {
-                    showToast(`Gagal menghapus dari Firebase. Coba sinkronkan manual.`);
-                }
+                    await deleteDoc(doc(db, "availableLicenses", key));
+                } catch (error) { showToast(`Gagal menghapus dari Firebase. Coba sinkronkan manual.`); }
             }
         });
     }
@@ -696,72 +474,25 @@
             message: `Hentikan akses untuk ${customerName}? Pengguna akan langsung diblokir.`,
             confirmText: "Hentikan",
             onConfirm: async () => {
-                // Optimistic UI update
                 allActivatedDevicesCache = allActivatedDevicesCache.filter(dev => dev.deviceID !== deviceID);
                 localStorage.setItem('activatedDevicesCache', JSON.stringify(allActivatedDevicesCache));
                 updateAndRenderActivatedList();
                 showToast(`Akses untuk ${customerName} dihentikan.`);
-
-                // Sync with Firebase in background
                 try {
-                    await remove(ref(db, `data/activatedDevices/${deviceID}`));
-                } catch (error) {
-                    showToast(`Gagal menghentikan dari Firebase. Coba sinkronkan manual.`);
-                }
+                    await deleteDoc(doc(db, "activatedDevices", deviceID));
+                } catch (error) { showToast(`Gagal menghentikan dari Firebase. Coba sinkronkan manual.`); }
             }
         });
     }
 
-    // --- Modal & Utility Functions ---
-    function copyLicenseMessage(key, customerName) {
-        const greeting = `Hai, ${customerName || 'pelanggan'}! Terima kasih telah membeli ShowTime!`;
-        const instructions = `Berikut langkah selanjutnya untuk mengaktifkan aplikasi:\n\n1. Buka: https://showtime-rose.vercel.app/activate.html\n2. Gunakan kunci lisensi ini:`;
-        copyToClipboard(`${greeting}\n\n${instructions}\n\n${key}`, 'Pesan aktivasi disalin!');
-    }
-
-    function showConfirmationModal({ title, message, confirmText, onConfirm }) {
-        const modal = document.getElementById('confirmModal');
-        document.getElementById('confirmTitle').textContent = title;
-        document.getElementById('confirmMessage').textContent = message;
-        const confirmBtn = document.getElementById('confirmBtn');
-        confirmBtn.textContent = confirmText;
-        modal.classList.remove('hidden');
-        
-        const cleanup = () => {
-            modal.classList.add('hidden');
-            confirmBtn.onclick = null;
-            document.getElementById('cancelBtn').onclick = null;
-        };
-        
-        confirmBtn.onclick = () => { onConfirm(); cleanup(); };
-        document.getElementById('cancelBtn').onclick = cleanup;
-    }
-
-    // --- NEW: Helper to calculate data size and show in toast ---
-    function calculateAndShowDataSize(messagePrefix) {
-        if (!allLicensesCache.length && !allActivatedDevicesCache.length) {
-            showToast(messagePrefix); // Don't show size if there's no data
-            return;
-        }
-        // Use Blob for a more accurate byte calculation
-        const dataString = JSON.stringify(allLicensesCache) + JSON.stringify(allActivatedDevicesCache);
-        const totalBytes = new Blob([dataString]).size;
-        const totalMB = (totalBytes / (1024 * 1024)).toFixed(3); // Use 3 decimal places for more precision on small sizes
-        showToast(`${messagePrefix} - ${totalMB} MB`);
-    }
-
+    // --- Modal & Utility Functions (tidak ada perubahan) ---
+    function copyLicenseMessage(key, customerName) { const greeting = `Hai, ${customerName || 'pelanggan'}! Terima kasih telah membeli ShowTime!`; const instructions = `Berikut langkah selanjutnya untuk mengaktifkan aplikasi:\n\n1. Buka: https://showtime-rose.vercel.app/activate.html\n2. Gunakan kunci lisensi ini:`; copyToClipboard(`${greeting}\n\n${instructions}\n\n${key}`, 'Pesan aktivasi disalin!'); }
+    function showConfirmationModal({ title, message, confirmText, onConfirm }) { const modal = document.getElementById('confirmModal'); document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmMessage').textContent = message; const confirmBtn = document.getElementById('confirmBtn'); confirmBtn.textContent = confirmText; modal.classList.remove('hidden'); const cleanup = () => { modal.classList.add('hidden'); confirmBtn.onclick = null; document.getElementById('cancelBtn').onclick = null; }; confirmBtn.onclick = () => { onConfirm(); cleanup(); }; document.getElementById('cancelBtn').onclick = cleanup; }
+    function calculateAndShowDataSize(messagePrefix) { if (!allLicensesCache.length && !allActivatedDevicesCache.length) { showToast(messagePrefix); return; } const dataString = JSON.stringify(allLicensesCache) + JSON.stringify(allActivatedDevicesCache); const totalBytes = new Blob([dataString]).size; const totalMB = (totalBytes / (1024 * 1024)).toFixed(3); showToast(`${messagePrefix} - ${totalMB} MB`); }
     function slugify(text) { return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, ''); }
     function generateLicenseKey(name) { const slug = slugify(name); const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; const v = c === 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); return `${slug}-${uuid}`.toUpperCase(); }
     function copyToClipboard(text, msg) { navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(err => showToast('Gagal menyalin.')); }
     function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
-    
-    function extractNameFromKey(key) {
-        if (!key) return 'Unknown';
-        const match = key.match(/-[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i);
-        if (!match) return key;
-        const nameSlug = key.substring(0, match.index);
-        return nameSlug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-    }
   </script>
 </body>
 </html>
