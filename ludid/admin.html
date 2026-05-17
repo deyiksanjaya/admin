@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Lucid Admin</title>
+    <title>Heri's App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
-        input:focus, button:focus, textarea:focus {
+        input:focus, button:focus, textarea:focus, select:focus {
             outline: none;
         }
         .hide-scrollbar::-webkit-scrollbar {
@@ -25,80 +25,236 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+        .app-tab.active {
+            color: #ffd60a;
+            border-color: #ffd60a;
+            background-color: rgba(255, 214, 10, 0.05);
+        }
     </style>
 </head>
-<body class="w-screen h-screen m-0 p-0 overflow-x-hidden flex flex-col bg-black">
+<body class="w-screen h-screen m-0 p-0 overflow-hidden flex flex-col bg-black">
 
-    <div id="login-view" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center transition-opacity duration-300">
+    <div id="login-view" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
         <div class="w-full max-w-sm px-6 flex flex-col items-center space-y-6">
             <div class="text-center space-y-1">
-                <h1 class="text-3xl font-bold tracking-widest">LUCID ADMIN</h1>
-                <p class="text-gray-500 text-sm">System Management</p>
+                <h1 class="text-3xl font-bold tracking-widest">HERI'S APP</h1>
+                <p class="text-gray-500 text-sm">Unified Management System</p>
             </div>
-            
             <div class="w-full space-y-3">
-                <input type="email" id="email-input" placeholder="Admin Email" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
-                <input type="password" id="password-input" placeholder="Password" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
+                <input type="email" id="login-email" placeholder="Admin Email" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
+                <input type="password" id="login-password" placeholder="Password" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
             </div>
-            
-            <button id="login-btn" class="w-full flex items-center justify-center gap-2 bg-white text-black py-4 rounded-xl font-bold active:scale-[0.98] transition-transform">
+            <button id="login-submit-btn" class="w-full flex items-center justify-center bg-white text-black py-4 rounded-xl font-bold active:scale-[0.98] transition-transform">
                 Sign In
             </button>
-            <div id="login-error" class="text-red-500 text-sm font-medium hidden"></div>
+            <div id="login-error-msg" class="text-red-500 text-sm font-medium hidden text-center"></div>
         </div>
     </div>
 
-    <div id="dashboard-view" class="hidden flex-col w-full h-full bg-[#0a0a0a]">
-        <header class="w-full bg-[#141414] border-b border-[#262626] px-6 py-4 flex justify-between items-center shrink-0">
-            <h1 class="text-lg font-bold tracking-widest text-white">LUCID ADMIN</h1>
-            <button id="logout-btn" class="text-xs font-bold text-red-400 bg-red-400/10 px-4 py-2 rounded-lg hover:bg-red-400/20 transition-colors">Sign Out</button>
-        </header>
+    <div id="dashboard-view" class="hidden flex-col md:flex-row w-full h-full bg-[#0a0a0a]">
+        
+        <aside class="w-full md:w-64 bg-[#141414] border-b md:border-b-0 md:border-r border-[#262626] flex flex-col shrink-0">
+            <div class="p-6 border-b border-[#262626] flex justify-between items-center">
+                <div>
+                    <h1 class="text-lg font-bold tracking-widest text-white">HERI'S APP</h1>
+                    <p class="text-[10px] text-gray-500 tracking-wider">MASTER ADMIN</p>
+                </div>
+                <button id="logout-submit-btn" class="text-xs font-bold text-red-400 bg-red-400/10 px-3 py-1.5 rounded-lg hover:bg-red-400/20 transition-colors md:hidden">Sign Out</button>
+            </div>
+            
+            <nav class="flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible hide-scrollbar p-2 md:p-4 gap-1 md:space-y-1">
+                <button onclick="window.switchTab('lucid')" id="tab-lucid" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>LUCID</span>
+                </button>
+                <button onclick="window.switchTab('atma')" id="tab-atma" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>ATMA</span>
+                </button>
+                <button onclick="window.switchTab('permanent')" id="tab-permanent" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>PERMANENT</span>
+                </button>
+                <button onclick="window.switchTab('showtime')" id="tab-showtime" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>SHOWTIME</span>
+                </button>
+            </nav>
 
-        <div class="flex-1 overflow-y-auto hide-scrollbar p-6">
-            <div class="max-w-3xl mx-auto w-full space-y-6">
+            <div class="hidden md:flex mt-auto p-4 border-t border-[#262626]">
+                <button id="logout-sidebar-btn" class="w-full text-xs font-bold text-red-400 bg-red-400/10 py-3 rounded-xl hover:bg-red-400/20 transition-colors">Sign Out</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto hide-scrollbar p-6">
+            <div class="max-w-4xl mx-auto w-full">
                 
-                <div class="flex flex-row justify-between items-center gap-4">
-                    <div>
-                        <h2 class="text-2xl font-bold text-white mb-0.5">Licenses</h2>
-                        <p class="text-xs text-gray-500">Manage application access</p>
+                <div id="panel-lucid" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">Lucid</h2>
+                            <p class="text-xs text-gray-500">Manage Lucid app client license key system</p>
+                        </div>
+                        <button id="lucid-generate-btn" class="bg-white text-black px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 active:scale-95 transition-transform shrink-0">
+                            Generate License
+                        </button>
                     </div>
-                    <button id="generate-btn" class="bg-white text-black px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 active:scale-95 transition-transform shrink-0">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Generate
-                    </button>
+
+                    <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-3">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Custom Message Template</label>
+                        <textarea id="lucid-template-input" rows="2" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors resize-none" placeholder="Use {code} where you want the license code to appear..."></textarea>
+                    </div>
+
+                    <div class="w-full relative">
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="lucid-search-input" placeholder="Search code or name..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
+                    </div>
+
+                    <div id="lucid-list-container" class="space-y-4"></div>
                 </div>
 
-                <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-3">
-                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Custom Message Template</label>
-                    <textarea id="template-input" rows="2" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors resize-none" placeholder="Use {code} where you want the license code to appear..."></textarea>
+                <div id="panel-atma" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">Atma</h2>
+                            <p class="text-xs text-gray-500">Vintage book-themed digital magic system</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4 h-fit">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Add New License</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="atma-new-key" placeholder="Code (e.g. ATMA-123)" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors">
+                                <button id="atma-create-btn" class="w-full bg-white text-black py-2.5 rounded-lg text-xs font-bold active:scale-95 transition-transform">Create</button>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-1 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Available</h3>
+                                <span id="atma-available-count" class="text-xs bg-white/10 px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="atma-available-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+                        </div>
+
+                        <div class="md:col-span-1 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Activated</h3>
+                                <span id="atma-activated-count" class="text-xs bg-white/10 px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="atma-activated-list" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="w-full relative">
-                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-input" placeholder="Search code or name..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
+                <div id="panel-permanent" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">Permanent</h2>
+                            <p class="text-xs text-gray-500">QR Generator & Stage Tool Suite</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1 space-y-6">
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Generate Codes</h3>
+                                <div class="flex gap-2">
+                                    <input type="number" id="perm-count" min="1" value="1" class="w-20 bg-black border border-[#262626] rounded-lg p-2.5 text-xs text-white text-center">
+                                    <button id="perm-generate-btn" class="flex-1 bg-white text-black py-2.5 rounded-lg text-xs font-bold active:scale-95 transition-transform">Generate</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Available</h3>
+                                <div id="perm-available-list" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center flex-wrap gap-2">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Active Users</h3>
+                                <input type="text" id="perm-search" placeholder="Search by email..." class="bg-black border border-[#262626] rounded-lg px-3 py-1.5 text-xs text-white w-full sm:w-48">
+                            </div>
+                            <div id="perm-active-list" class="space-y-3 max-h-[32rem] overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="license-list-container" class="space-y-4">
+                <div id="panel-showtime" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">ShowTime</h2>
+                            <p class="text-xs text-gray-500">Live Show Media Controller</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1 space-y-6">
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Create License</h3>
+                                <div class="space-y-3">
+                                    <input type="text" id="show-cust-name" placeholder="Customer Name" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors">
+                                    <button id="show-generate-btn" class="w-full bg-white text-black py-2.5 rounded-lg text-xs font-bold active:scale-95 transition-transform">Create & Assign</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Unused Keys</h3>
+                                    <select id="show-sort-unused" class="bg-black text-[11px] text-gray-400 border border-[#262626] rounded px-1.5 py-0.5">
+                                        <option value="date_desc">Newest</option>
+                                        <option value="date_asc">Oldest</option>
+                                        <option value="name_asc">A-Z</option>
+                                        <option value="name_desc">Z-A</option>
+                                    </select>
+                                </div>
+                                <div id="show-unused-list" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
+                                <div id="show-unused-pagination" class="pt-2"></div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center flex-wrap gap-3">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Activated Devices</h3>
+                                <div class="flex gap-2 w-full sm:w-auto">
+                                    <input type="text" id="show-search-active" placeholder="Search..." class="bg-black border border-[#262626] rounded-lg px-3 py-1.5 text-xs text-white w-full sm:w-40">
+                                    <select id="show-sort-active" class="bg-black text-xs text-gray-400 border border-[#262626] rounded-lg px-2 py-1">
+                                        <option value="date_desc">Newest</option>
+                                        <option value="date_asc">Oldest</option>
+                                        <option value="name_asc">A-Z</option>
+                                        <option value="name_desc">Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="show-activated-list" class="space-y-3 max-h-[32rem] overflow-y-auto pr-1"></div>
+                            <div id="show-activated-pagination" class="pt-2"></div>
+                        </div>
+                    </div>
                 </div>
-                
+
+            </div>
+        </main>
+    </div>
+
+    <div id="confirm-modal" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#141414] border border-[#262626] w-full max-w-sm rounded-2xl p-6 text-center space-y-5">
+            <div class="space-y-2">
+                <h3 id="modal-title" class="text-lg font-bold text-white">Confirm</h3>
+                <p id="modal-desc" class="text-sm text-gray-400"></p>
+            </div>
+            <div class="flex gap-3">
+                <button id="modal-cancel-btn" class="flex-1 bg-transparent border border-[#262626] text-white py-3 rounded-xl font-bold text-sm">Cancel</button>
+                <button id="modal-confirm-btn" class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-sm">Confirm</button>
             </div>
         </div>
     </div>
 
-    <script>
-        if (localStorage.getItem('lucid_admin_auth') === 'true') {
-            document.getElementById('login-view').style.display = 'none';
-            document.getElementById('dashboard-view').classList.remove('hidden');
-            document.getElementById('dashboard-view').classList.add('flex');
-        }
-    </script>
+    <div id="toast-notif" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#141414] border border-[#262626] text-white px-5 py-3 rounded-full text-xs font-semibold tracking-wide shadow-2xl transition-opacity duration-300 opacity-0 pointer-events-none z-[100]"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, getDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const firebaseConfig = {
+        const configLucid = {
             apiKey: "AIzaSyC-0oRlqQ7odJJYXIyaQX_MlAUNcJKk0WU",
             authDomain: "lucidbyheri.firebaseapp.com",
             projectId: "lucidbyheri",
@@ -107,224 +263,757 @@
             appId: "1:282347124526:web:552c724fae9fc433912cbf"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+        const configAtma = {
+            apiKey: "AIzaSyCFDxFe2PnyxaLRb7VctQSHhQh7ZKoSDaU",
+            authDomain: "atmamagicbyheri.firebaseapp.com",
+            projectId: "atmamagicbyheri",
+            storageBucket: "atmamagicbyheri.firebasestorage.app",
+            messagingSenderId: "672288947327",
+            appId: "1:672288947327:web:4ee5d222045bfaf6ed934a"
+        };
+
+        const configPermanent = {
+            apiKey: "AIzaSyAjs_-oH_kma3lHU4BCyStN8W0606MYLus",
+            authDomain: "permanentmagicapp.firebaseapp.com",
+            projectId: "permanentmagicapp",
+            storageBucket: "permanentmagicapp.firebasestorage.app",
+            messagingSenderId: "695981452362",
+            appId: "1:695981452362:web:a0155863e767fa63424ab3"
+        };
+
+        const configShowtime = {
+            apiKey: "AIzaSyBm2cw6dircA3IMc3yCEeCgVa5--5W6DUw",
+            authDomain: "showtime-f086c.firebaseapp.com",
+            projectId: "showtime-f086c",
+            storageBucket: "showtime-f086c.appspot.com",
+            messagingSenderId: "31064800242",
+            appId: "1:31064800242:web:8b290d03eda9bf7d95896b"
+        };
+
+        const fLucid = initializeApp(configLucid, "lucid");
+        const fAtma = initializeApp(configAtma, "atma");
+        const fPermanent = initializeApp(configPermanent, "permanent");
+        const fShowtime = initializeApp(configShowtime, "showtime");
+
+        const authLucid = getAuth(fLucid);
+        const dbLucid = getFirestore(fLucid);
+
+        const authAtma = getAuth(fAtma);
+        const dbAtma = getFirestore(fAtma);
+
+        const authPermanent = getAuth(fPermanent);
+        const dbPermanent = getFirestore(fPermanent);
+
+        const authShowtime = getAuth(fShowtime);
+        const dbShowtime = getFirestore(fShowtime);
 
         const loginView = document.getElementById('login-view');
         const dashboardView = document.getElementById('dashboard-view');
-        const emailInput = document.getElementById('email-input');
-        const passwordInput = document.getElementById('password-input');
-        const loginBtn = document.getElementById('login-btn');
-        const loginError = document.getElementById('login-error');
-        const logoutBtn = document.getElementById('logout-btn');
-
-        const generateBtn = document.getElementById('generate-btn');
-        const searchInput = document.getElementById('search-input');
-        const listContainer = document.getElementById('license-list-container');
-        const templateInput = document.getElementById('template-input');
+        const loginEmail = document.getElementById('login-email');
+        const loginPassword = document.getElementById('login-password');
+        const loginSubmitBtn = document.getElementById('login-submit-btn');
+        const loginErrorMsg = document.getElementById('login-error-msg');
         
-        let allLicenses = [];
+        const logoutSubmitBtn = document.getElementById('logout-submit-btn');
+        const logoutSidebarBtn = document.getElementById('logout-sidebar-btn');
 
-        const defaultTemplate = "Hi! Here is your Lucid license code: {code}";
-        let currentTemplate = localStorage.getItem('lucid_msg_template') || defaultTemplate;
-        templateInput.value = currentTemplate;
+        const confirmModal = document.getElementById('confirm-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
 
-        templateInput.addEventListener('input', (e) => {
-            currentTemplate = e.target.value;
-            localStorage.setItem('lucid_msg_template', currentTemplate);
-        });
+        const toastNotif = document.getElementById('toast-notif');
 
-        onAuthStateChanged(auth, (user) => {
+        let activeTab = 'lucid';
+        let lucidLicenses = [];
+        let atmaAvailable = [];
+        let atmaActivated = [];
+        let permAvailable = [];
+        let permActive = [];
+        
+        let showUnused = [];
+        let showActivated = [];
+        let showUnusedPage = 1;
+        let showActivePage = 1;
+        const SHOW_PAGE_SIZE = 5;
+
+        onAuthStateChanged(authLucid, async (user) => {
             if (user) {
                 localStorage.setItem('lucid_admin_auth', 'true');
                 loginView.style.display = 'none';
                 dashboardView.classList.remove('hidden');
                 dashboardView.classList.add('flex');
-                loadData();
+                
+                try {
+                    await signInAnonymously(authPermanent);
+                    await signInAnonymously(authShowtime);
+                } catch(e){}
+
+                initDashboard();
             } else {
                 localStorage.removeItem('lucid_admin_auth');
                 dashboardView.classList.add('hidden');
                 dashboardView.classList.remove('flex');
                 loginView.style.display = 'flex';
-                loginView.style.opacity = '1';
             }
         });
 
-        loginBtn.addEventListener('click', async () => {
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
+        loginSubmitBtn.addEventListener('click', async () => {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+            if (!email || !password) return;
 
-            if (!email || !password) {
-                loginError.textContent = "Please enter email and password";
-                loginError.classList.remove('hidden');
-                return;
-            }
-
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Signing In...';
-            loginError.classList.add('hidden');
+            loginSubmitBtn.disabled = true;
+            loginSubmitBtn.textContent = 'Verifying...';
+            loginErrorMsg.classList.add('hidden');
 
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                loginError.textContent = 'Invalid credentials or unauthorized access';
-                loginError.classList.remove('hidden');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Sign In';
+                await signInWithEmailAndPassword(authLucid, email, password);
+                try {
+                    await signInWithEmailAndPassword(authAtma, email, password);
+                } catch(e){}
+            } catch (err) {
+                loginErrorMsg.textContent = 'Invalid credentials';
+                loginErrorMsg.classList.remove('hidden');
+                loginSubmitBtn.disabled = false;
+                loginSubmitBtn.textContent = 'Sign In';
             }
         });
 
-        logoutBtn.addEventListener('click', () => {
+        const handleLogout = () => {
+            signOut(authLucid);
+            signOut(authAtma);
+            signOut(authPermanent);
+            signOut(authShowtime);
             localStorage.removeItem('lucid_admin_auth');
-            signOut(auth);
-        });
+            window.location.reload();
+        };
 
-        function loadData() {
-            if (!auth.currentUser) return;
+        logoutSubmitBtn.addEventListener('click', handleLogout);
+        logoutSidebarBtn.addEventListener('click', handleLogout);
+
+        window.showToast = (msg) => {
+            toastNotif.textContent = msg;
+            toastNotif.style.opacity = '1';
+            setTimeout(() => {
+                toastNotif.style.opacity = '0';
+            }, 2500);
+        };
+
+        window.openConfirm = (title, desc, onConfirm) => {
+            modalTitle.textContent = title;
+            modalDesc.textContent = desc;
+            confirmModal.classList.remove('hidden');
             
-            onSnapshot(collection(db, "licenses"), (snapshot) => {
-                allLicenses = [];
-                snapshot.forEach((doc) => {
-                    allLicenses.push({ id: doc.id, ...doc.data() });
-                });
-                
-                allLicenses.sort((a, b) => {
-                    const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
-                    const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
-                    return timeB - timeA;
-                });
-                
-                renderList();
-            });
+            modalConfirmBtn.onclick = () => {
+                onConfirm();
+                confirmModal.classList.add('hidden');
+            };
+            modalCancelBtn.onclick = () => {
+                confirmModal.classList.add('hidden');
+            };
+        };
+
+        window.switchTab = (tabId) => {
+            activeTab = tabId;
+            document.querySelectorAll('.app-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.app-panel').forEach(el => el.classList.add('hidden'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+        };
+
+        function initDashboard() {
+            window.switchTab('lucid');
+            setupLucid();
+            setupAtma();
+            setupPermanent();
+            setupShowtime();
         }
 
-        function renderList() {
-            const query = searchInput.value.toLowerCase();
-            const filtered = allLicenses.filter(item => {
-                const searchName = item.name || '';
-                return item.id.toLowerCase().includes(query) || searchName.toLowerCase().includes(query);
+        function setupLucid() {
+            const listContainer = document.getElementById('lucid-list-container');
+            const searchInput = document.getElementById('lucid-search-input');
+            const templateInput = document.getElementById('lucid-template-input');
+            const generateBtn = document.getElementById('lucid-generate-btn');
+
+            let defaultTemp = "Hi! Here is your Lucid license code: {code}";
+            let currentTemp = localStorage.getItem('lucid_msg_template') || defaultTemp;
+            templateInput.value = currentTemp;
+
+            templateInput.addEventListener('input', (e) => {
+                currentTemp = e.target.value;
+                localStorage.setItem('lucid_msg_template', currentTemp);
             });
 
-            listContainer.innerHTML = '';
+            onSnapshot(collection(dbLucid, "licenses"), (snapshot) => {
+                lucidLicenses = [];
+                snapshot.forEach(doc => {
+                    lucidLicenses.push({ id: doc.id, ...doc.data() });
+                });
+                lucidLicenses.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                renderLucid();
+            });
 
-            if (filtered.length === 0) {
-                listContainer.innerHTML = `
-                    <div class="bg-[#141414] border border-[#262626] rounded-xl px-6 py-12 text-center text-gray-500 text-sm">
-                        No licenses found.
-                    </div>
-                `;
-                return;
-            }
+            function renderLucid() {
+                const query = searchInput.value.toLowerCase();
+                const filtered = lucidLicenses.filter(item => {
+                    const name = item.name || '';
+                    return item.id.toLowerCase().includes(query) || name.toLowerCase().includes(query);
+                });
 
-            filtered.forEach(item => {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "bg-[#141414] border border-[#262626] rounded-xl p-5 flex flex-col gap-4 hover:border-gray-500 transition-colors duration-300";
-                
-                const statusColor = item.status === 'active' ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20';
-                const statusText = item.status === 'active' ? 'Active' : 'Blocked';
-                const currentName = item.name || '';
+                listContainer.innerHTML = '';
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = `<div class="bg-[#141414] border border-[#262626] rounded-xl px-6 py-12 text-center text-gray-500 text-sm">No licenses found.</div>`;
+                    return;
+                }
 
-                itemDiv.innerHTML = `
-                    <div class="flex flex-row justify-between items-center">
-                        <div class="flex flex-wrap items-center gap-3">
-                            <span class="font-mono text-white tracking-wider text-base font-bold">${item.id}</span>
-                            <div class="flex items-center gap-1.5">
-                                <button onclick="window.copyToClipboard('${item.id}', false, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">
-                                    Copy Code
-                                </button>
-                                <button onclick="window.copyToClipboard('${item.id}', true, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">
-                                    Copy Text
+                filtered.forEach(item => {
+                    const activeColor = item.status === 'active' ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20';
+                    const activeText = item.status === 'active' ? 'Active' : 'Blocked';
+                    const row = document.createElement('div');
+                    row.className = "bg-[#141414] border border-[#262626] rounded-xl p-5 flex flex-col gap-4 hover:border-neutral-700 transition-colors";
+                    row.innerHTML = `
+                        <div class="flex flex-row justify-between items-center">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="font-mono text-white tracking-wider text-sm font-bold">${item.id}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="window.copyLucid('${item.id}', false, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">Copy Code</button>
+                                    <button onclick="window.copyLucid('${item.id}', true, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">Copy Text</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <button onclick="window.toggleLucidStatus('${item.id}', '${item.status}')" class="px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold border ${activeColor}">${activeText}</button>
+                                <button onclick="window.deleteLucid('${item.id}')" class="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                                 </button>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3 shrink-0">
-                            <button onclick="window.toggleStatus('${item.id}', '${item.status}')" class="px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold border ${statusColor} active:scale-95 transition-all">
-                                ${statusText}
-                            </button>
-                            <button onclick="window.deleteLicense('${item.id}')" class="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            </button>
+                        <div class="pt-2 border-t border-neutral-900">
+                            <input type="text" value="${item.name || ''}" placeholder="No owner registered yet" onchange="window.updateLucidName('${item.id}', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-neutral-700 py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
                         </div>
-                    </div>
-                    <div class="pt-2 border-t border-black/40">
-                        <input type="text" value="${currentName}" placeholder="No owner registered yet" onchange="window.updateName('${item.id}', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-gray-500 py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
-                    </div>
-                `;
-                listContainer.appendChild(itemDiv);
+                    `;
+                    listContainer.appendChild(row);
+                });
+            }
+
+            searchInput.addEventListener('input', renderLucid);
+
+            generateBtn.addEventListener('click', async () => {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let code = '';
+                for(let i=0; i<12; i++) {
+                    if(i>0 && i%4===0) code += '-';
+                    code += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                try {
+                    await setDoc(doc(dbLucid, "licenses", code), {
+                        name: "",
+                        status: "active",
+                        createdAt: serverTimestamp()
+                    });
+                    window.showToast("License generated");
+                } catch(e){}
             });
+
+            window.copyLucid = (code, useTemplate, btn) => {
+                let txt = code;
+                if (useTemplate) {
+                    txt = currentTemp.replace(/{code}/g, code);
+                }
+                const ta = document.createElement("textarea");
+                ta.value = txt;
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    const orig = btn.textContent;
+                    btn.textContent = "Copied!";
+                    btn.classList.add('text-green-400');
+                    setTimeout(() => {
+                        btn.textContent = orig;
+                        btn.classList.remove('text-green-400');
+                    }, 1500);
+                } catch(err){}
+                document.body.removeChild(ta);
+            };
+
+            window.toggleLucidStatus = async (id, current) => {
+                const next = current === 'active' ? 'blocked' : 'active';
+                try {
+                    await updateDoc(doc(dbLucid, "licenses", id), { status: next });
+                } catch(e){}
+            };
+
+            window.deleteLucid = (id) => {
+                window.openConfirm("Delete License", `Are you sure you want to delete ${id} permanently?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbLucid, "licenses", id));
+                        window.showToast("License deleted");
+                    } catch(e){}
+                });
+            };
+
+            window.updateLucidName = async (id, name) => {
+                try {
+                    await updateDoc(doc(dbLucid, "licenses", id), { name: name.trim() });
+                    window.showToast("Owner updated");
+                } catch(e){}
+            };
         }
 
-        window.copyToClipboard = (code, useTemplate, btnElement) => {
-            let textToCopy = code;
-            if (useTemplate) {
-                textToCopy = currentTemplate.replace(/{code}/g, code);
-            }
+        function setupAtma() {
+            const createBtn = document.getElementById('atma-create-btn');
+            const newKeyInput = document.getElementById('atma-new-key');
+            const availableList = document.getElementById('atma-available-list');
+            const activatedList = document.getElementById('atma-activated-list');
+            const availableCount = document.getElementById('atma-available-count');
+            const activatedCount = document.getElementById('atma-activated-count');
 
-            const textArea = document.createElement("textarea");
-            textArea.value = textToCopy;
-            document.body.appendChild(textArea);
-            textArea.select();
+            onSnapshot(collection(dbAtma, 'availableLicenses'), (snapshot) => {
+                atmaAvailable = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAtmaAvailable();
+            });
 
-            try {
-                document.execCommand('copy');
-                const originalText = btnElement.textContent;
-                btnElement.textContent = "Copied!";
-                btnElement.classList.replace('text-gray-400', 'text-green-400');
-                setTimeout(() => {
-                    btnElement.textContent = originalText;
-                    btnElement.classList.replace('text-green-400', 'text-gray-400');
-                }, 1500);
-            } catch (err) {
-                console.error('Failed to copy text', err);
-            }
+            onSnapshot(collection(dbAtma, 'activatedLicenses'), (snapshot) => {
+                atmaActivated = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAtmaActivated();
+            });
 
-            document.body.removeChild(textArea);
-        };
-
-        searchInput.addEventListener('input', renderList);
-
-        generateBtn.addEventListener('click', async () => {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for(let i=0; i<12; i++) {
-                if(i>0 && i%4===0) code += '-';
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            
-            try {
-                await setDoc(doc(db, "licenses", code), {
-                    name: "",
-                    status: "active",
-                    createdAt: serverTimestamp()
+            function renderAtmaAvailable() {
+                availableList.innerHTML = '';
+                availableCount.textContent = atmaAvailable.length;
+                if (atmaAvailable.length === 0) {
+                    availableList.innerHTML = `<p class="text-xs text-gray-500 italic">No unused licenses</p>`;
+                    return;
+                }
+                atmaAvailable.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "p-2.5 bg-black/40 border border-[#262626] rounded-lg flex justify-between items-center";
+                    row.innerHTML = `
+                        <span class="font-mono text-xs text-white">${item.id}</span>
+                        <button onclick="window.deleteAtmaAvailable('${item.id}')" class="text-gray-500 hover:text-red-400 transition-colors">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    `;
+                    availableList.appendChild(row);
                 });
-            } catch (e) {}
-        });
+            }
 
-        window.toggleStatus = async (id, currentStatus) => {
-            const newStatus = currentStatus === 'active' ? 'blocked' : 'active';
-            try {
-                await updateDoc(doc(db, "licenses", id), {
-                    status: newStatus
+            function renderAtmaActivated() {
+                activatedList.innerHTML = '';
+                activatedCount.textContent = atmaActivated.length;
+                if (atmaActivated.length === 0) {
+                    activatedList.innerHTML = `<p class="text-xs text-gray-500 italic">No activated licenses</p>`;
+                    return;
+                }
+                atmaActivated.forEach(item => {
+                    const date = item.claimedAt ? new Date(item.claimedAt.seconds * 1000).toLocaleDateString() : 'N/A';
+                    const row = document.createElement('div');
+                    row.className = "p-3 bg-black/40 border border-[#262626] rounded-lg space-y-2";
+                    row.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="font-mono text-xs font-bold text-white">${item.id}</span>
+                            <button onclick="window.terminateAtma('${item.id}')" class="text-[10px] uppercase font-bold text-red-400 bg-red-400/10 px-2.5 py-1 rounded-md hover:bg-red-400/20 transition-all">Terminate</button>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-[10px] text-gray-500">UID: <span class="font-mono text-gray-400">${item.uid || 'N/A'}</span></p>
+                            <p class="text-[10px] text-gray-500">Claimed: <span class="text-gray-400">${date}</span></p>
+                        </div>
+                    `;
+                    activatedList.appendChild(row);
                 });
-            } catch (e) {}
-        };
+            }
 
-        window.deleteLicense = async (id) => {
-            if (confirm(`Remove license ${id} permanently?`)) {
+            createBtn.addEventListener('click', async () => {
+                const key = newKeyInput.value.trim().toUpperCase();
+                if (!key) return;
+                createBtn.disabled = true;
                 try {
-                    await deleteDoc(doc(db, "licenses", id));
-                } catch (e) {}
-            }
-        };
+                    const snap = await getDoc(doc(dbAtma, 'availableLicenses', key));
+                    if (snap.exists()) {
+                        window.showToast("This license key already exists.");
+                    } else {
+                        await setDoc(doc(dbAtma, 'availableLicenses', key), { status: 'available', createdAt: serverTimestamp() });
+                        newKeyInput.value = '';
+                        window.showToast("License key created");
+                    }
+                } catch(e){}
+                createBtn.disabled = false;
+            });
 
-        window.updateName = async (id, newName) => {
-            try {
-                await updateDoc(doc(db, "licenses", id), {
-                    name: newName.trim()
+            window.deleteAtmaAvailable = (key) => {
+                window.openConfirm("Delete Atma Key", `Are you sure you want to delete unused key ${key}?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbAtma, 'availableLicenses', key));
+                        window.showToast("Key deleted");
+                    } catch(e){}
                 });
-            } catch (e) {}
-        };
+            };
+
+            window.terminateAtma = (key) => {
+                window.openConfirm("Terminate License", `Terminate access for ${key}? This will revoke client access immediately.`, async () => {
+                    try {
+                        await deleteDoc(doc(dbAtma, 'activatedLicenses', key));
+                        window.showToast("License terminated");
+                    } catch(e){}
+                });
+            };
+        }
+
+        function setupPermanent() {
+            const generateBtn = document.getElementById('perm-generate-btn');
+            const countInput = document.getElementById('perm-count');
+            const availableList = document.getElementById('perm-available-list');
+            const activeList = document.getElementById('perm-active-list');
+            const searchInput = document.getElementById('perm-search');
+
+            onSnapshot(collection(dbPermanent, 'availableLicenses'), (snapshot) => {
+                permAvailable = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderPermAvailable();
+            });
+
+            onSnapshot(collection(dbPermanent, 'activatedLicenses'), (snapshot) => {
+                permActive = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                permActive.sort((a, b) => (b.activatedAt?.toDate() || 0) - (a.activatedAt?.toDate() || 0));
+                renderPermActive();
+            });
+
+            function renderPermAvailable() {
+                availableList.innerHTML = '';
+                if (permAvailable.length === 0) {
+                    availableList.innerHTML = `<p class="text-xs text-gray-500 italic">No available codes</p>`;
+                    return;
+                }
+                permAvailable.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "p-3 bg-black/40 border border-[#262626] rounded-xl flex flex-col gap-2.5";
+                    row.innerHTML = `
+                        <p class="font-mono text-xs text-center text-white select-all">${item.id}</p>
+                        <div class="flex gap-1.5">
+                            <button onclick="window.copyPerm('${item.id}', false, this)" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Copy</button>
+                            <button onclick="window.copyPerm('${item.id}', true, this)" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Share</button>
+                            <button onclick="window.deletePermUnused('${item.id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2 rounded-lg py-1.5 text-[10px] font-bold transition-all">Delete</button>
+                        </div>
+                    `;
+                    availableList.appendChild(row);
+                });
+            }
+
+            function renderPermActive() {
+                const term = searchInput.value.toLowerCase();
+                const filtered = term ? permActive.filter(u => u.email.toLowerCase().includes(term)) : permActive;
+
+                activeList.innerHTML = '';
+                if (filtered.length === 0) {
+                    activeList.innerHTML = `<p class="text-xs text-gray-500 italic">No active users</p>`;
+                    return;
+                }
+                filtered.forEach(item => {
+                    const date = item.activatedAt ? item.activatedAt.toDate().toLocaleDateString() : 'N/A';
+                    const row = document.createElement('div');
+                    row.className = "p-3.5 bg-black/40 border border-[#262626] rounded-xl flex justify-between items-center";
+                    row.innerHTML = `
+                        <div class="space-y-1">
+                            <p class="text-white font-bold text-xs">${item.email}</p>
+                            <p class="font-mono text-[10px] text-gray-500">${item.licenseCode || 'No code recorded'}</p>
+                            <p class="text-[9px] text-gray-600">Activated: ${date}</p>
+                        </div>
+                        <button onclick="window.terminatePerm('${item.id}')" class="text-[10px] uppercase font-bold text-red-400 bg-red-400/10 px-2.5 py-1.5 rounded-md hover:bg-red-400/20 transition-all shrink-0">Terminate</button>
+                    `;
+                    activeList.appendChild(row);
+                });
+            }
+
+            searchInput.addEventListener('input', renderPermActive);
+
+            generateBtn.addEventListener('click', async () => {
+                const count = parseInt(countInput.value, 10);
+                if (isNaN(count) || count < 1) return;
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Generating...';
+                try {
+                    const batch = writeBatch(dbPermanent);
+                    for (let i = 0; i < count; i++) {
+                        let raw = '';
+                        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                        for (let j = 0; j < 12; j++) {
+                            raw += chars.charAt(Math.floor(Math.random() * chars.length));
+                            if ((j + 1) % 4 === 0 && j < 11) raw += '-';
+                        }
+                        batch.set(doc(dbPermanent, "availableLicenses", raw), {});
+                    }
+                    await batch.commit();
+                    window.showToast(`${count} permanent licenses created`);
+                } catch(e){}
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate';
+            });
+
+            window.copyPerm = (code, doShare, btn) => {
+                const msg = `Thank you so much for purchasing PERMANENT.
+Your support truly means the world to me as an independent creator in magic.
+
+Here’s your personal license code (one-time use only) :
+
+${code}
+
+I hope you enjoy using it, and I’d love to hear your thoughts or see how you apply it in your work.
+
+Warm regards,
+Heri Sanjaya`;
+
+                if (doShare) {
+                    if (navigator.share) {
+                        navigator.share({ title: 'Permanent License Code', text: msg }).catch(()=>{});
+                    } else {
+                        window.showToast("Sharing is not supported on this browser.");
+                    }
+                } else {
+                    const ta = document.createElement("textarea");
+                    ta.value = msg;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand('copy');
+                        const orig = btn.textContent;
+                        btn.textContent = "Copied!";
+                        setTimeout(() => btn.textContent = orig, 1500);
+                    } catch(err){}
+                    document.body.removeChild(ta);
+                }
+            };
+
+            window.deletePermUnused = (key) => {
+                window.openConfirm("Delete Permanent Key", `Are you sure you want to delete unused key ${key}?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbPermanent, 'availableLicenses', key));
+                        window.showToast("Key deleted");
+                    } catch(e){}
+                });
+            };
+
+            window.terminatePerm = (id) => {
+                window.openConfirm("Terminate User", `Terminate active license for this user? Access will be revoked immediately.`, async () => {
+                    try {
+                        await deleteDoc(doc(dbPermanent, 'activatedLicenses', id));
+                        window.showToast("User terminated");
+                    } catch(e){}
+                });
+            };
+        }
+
+        function setupShowtime() {
+            const custNameInput = document.getElementById('show-cust-name');
+            const generateBtn = document.getElementById('show-generate-btn');
+            const unusedList = document.getElementById('show-unused-list');
+            const unusedPagination = document.getElementById('show-unused-pagination');
+            const activatedList = document.getElementById('show-activated-list');
+            const activatedPagination = document.getElementById('show-activated-pagination');
+            const searchInput = document.getElementById('show-search-active');
+            const sortUnusedSelect = document.getElementById('show-sort-unused');
+            const sortActiveSelect = document.getElementById('show-sort-active');
+
+            onSnapshot(collection(dbShowtime, 'availableLicenses'), (snapshot) => {
+                showUnused = snapshot.docs.map(doc => ({ key: doc.id, ...doc.data() }));
+                updateAndRenderShowUnused();
+            });
+
+            onSnapshot(collection(dbShowtime, 'activatedDevices'), (snapshot) => {
+                showActivated = snapshot.docs.map(doc => ({ deviceID: doc.id, ...doc.data() }));
+                updateAndRenderShowActive();
+            });
+
+            function applySort(data, order, dateProp) {
+                return [...data].sort((a, b) => {
+                    const nameA = a.customerName || '';
+                    const nameB = b.customerName || '';
+                    const dateA = new Date(a[dateProp] || 0);
+                    const dateB = new Date(b[dateProp] || 0);
+                    switch (order) {
+                        case 'date_asc': return dateA - dateB;
+                        case 'name_asc': return nameA.localeCompare(nameB);
+                        case 'name_desc': return nameB.localeCompare(nameA);
+                        case 'date_desc': default: return dateB - dateA;
+                    }
+                });
+            }
+
+            function updateAndRenderShowUnused() {
+                const sorted = applySort(showUnused, sortUnusedSelect.value, 'createdAt');
+                renderShowUnused(sorted);
+            }
+
+            function updateAndRenderShowActive() {
+                const term = searchInput.value.toLowerCase();
+                const filtered = term ? showActivated.filter(d => (d.customerName || '').toLowerCase().includes(term) || d.licenseKey.toLowerCase().includes(term)) : showActivated;
+                const sorted = applySort(filtered, sortActiveSelect.value, 'activatedAt');
+                renderShowActive(sorted);
+            }
+
+            function renderShowUnused(data) {
+                unusedList.innerHTML = '';
+                const totalPages = Math.ceil(data.length / SHOW_PAGE_SIZE) || 1;
+                if (showUnusedPage > totalPages) showUnusedPage = totalPages;
+
+                if (data.length === 0) {
+                    unusedList.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No unused keys found</p>`;
+                    unusedPagination.innerHTML = '';
+                    return;
+                }
+
+                const pageData = data.slice((showUnusedPage - 1) * SHOW_PAGE_SIZE, showUnusedPage * SHOW_PAGE_SIZE);
+                pageData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "p-3 bg-black/40 border border-[#262626] rounded-xl space-y-2.5";
+                    card.innerHTML = `
+                        <div>
+                            <p class="text-white text-xs font-bold">${item.customerName || 'No Name'}</p>
+                            <p class="font-mono text-[10px] text-gray-500 break-all select-all">${item.key}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="window.copyShow('${item.key}', false, this)" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Copy Key</button>
+                            <button onclick="window.copyShow('${item.key}', true, '${item.customerName || ''}')" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Copy Msg</button>
+                            <button onclick="window.deleteShowUnused('${item.key}', '${item.customerName || ''}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2 rounded-lg py-1.5 text-[10px] font-bold transition-all">Delete</button>
+                        </div>
+                    `;
+                    unusedList.appendChild(card);
+                });
+
+                renderPaginationUI(unusedPagination, showUnusedPage, totalPages, (p) => {
+                    showUnusedPage = p;
+                    updateAndRenderShowUnused();
+                });
+            }
+
+            function renderShowActive(data) {
+                activatedList.innerHTML = '';
+                const totalPages = Math.ceil(data.length / SHOW_PAGE_SIZE) || 1;
+                if (showActivePage > totalPages) showActivePage = totalPages;
+
+                if (data.length === 0) {
+                    activatedList.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No active devices found</p>`;
+                    activatedPagination.innerHTML = '';
+                    return;
+                }
+
+                const pageData = data.slice((showActivePage - 1) * SHOW_PAGE_SIZE, showActivePage * SHOW_PAGE_SIZE);
+                pageData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "p-3.5 bg-black/40 border border-[#262626] rounded-xl flex justify-between items-center";
+                    card.innerHTML = `
+                        <div class="space-y-1">
+                            <p class="text-white font-bold text-xs">${item.customerName || 'Unknown'}</p>
+                            <p class="font-mono text-[10px] text-gray-500 break-all select-all">${item.licenseKey}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full font-bold">Active</span>
+                                <span class="text-[9px] text-gray-600">${new Date(item.activatedAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <button onclick="window.terminateShow('${item.deviceID}', '${item.customerName || ''}')" class="text-[10px] uppercase font-bold text-red-400 bg-red-400/10 px-2.5 py-1.5 rounded-md hover:bg-red-400/20 transition-all shrink-0">Terminate</button>
+                    `;
+                    activatedList.appendChild(card);
+                });
+
+                renderPaginationUI(activatedPagination, showActivePage, totalPages, (p) => {
+                    showActivePage = p;
+                    updateAndRenderShowActive();
+                });
+            }
+
+            function renderPaginationUI(container, current, total, onSwitch) {
+                container.innerHTML = '';
+                if (total <= 1) return;
+                const div = document.createElement('div');
+                div.className = "flex justify-center items-center gap-2";
+                
+                const prev = document.createElement('button');
+                prev.className = "px-2.5 py-1 bg-[#141414] border border-[#262626] rounded text-xs text-white disabled:opacity-30";
+                prev.textContent = "Prev";
+                prev.disabled = current === 1;
+                prev.onclick = () => onSwitch(current - 1);
+
+                const label = document.createElement('span');
+                label.className = "text-xs text-gray-400";
+                label.textContent = `${current} of ${total}`;
+
+                const next = document.createElement('button');
+                next.className = "px-2.5 py-1 bg-[#141414] border border-[#262626] rounded text-xs text-white disabled:opacity-30";
+                next.textContent = "Next";
+                next.disabled = current === total;
+                next.onclick = () => onSwitch(current + 1);
+
+                div.appendChild(prev);
+                div.appendChild(label);
+                div.appendChild(next);
+                container.appendChild(div);
+            }
+
+            sortUnusedSelect.addEventListener('change', updateAndRenderShowUnused);
+            sortActiveSelect.addEventListener('change', updateAndRenderShowActive);
+            searchInput.addEventListener('input', updateAndRenderShowActive);
+
+            generateBtn.addEventListener('click', async () => {
+                const customerName = custNameInput.value.trim();
+                if (!customerName) return;
+
+                const slug = customerName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
+                const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+                const key = `${slug}-${uuid}`.toUpperCase();
+
+                const val = { createdAt: new Date().toISOString(), customerName: customerName };
+                try {
+                    await setDoc(doc(dbShowtime, "availableLicenses", key), val);
+                    custNameInput.value = '';
+                    window.showToast("ShowTime license created");
+                } catch(e){}
+            });
+
+            window.copyShow = (key, msgOnly, elementOrName) => {
+                let txt = key;
+                if (msgOnly) {
+                    txt = `Hai, ${elementOrName || 'pelanggan'}! Terima kasih telah membeli ShowTime!\n\nBerikut langkah selanjutnya untuk mengaktifkan aplikasi:\n\n1. Buka: https://showtime-rose.vercel.app/activate.html\n2. Gunakan kunci lisensi ini:\n\n${key}`;
+                }
+                const ta = document.createElement("textarea");
+                ta.value = txt;
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    if (!msgOnly) {
+                        const orig = elementOrName.textContent;
+                        elementOrName.textContent = "Copied!";
+                        setTimeout(() => elementOrName.textContent = orig, 1500);
+                    } else {
+                        window.showToast("Message copied!");
+                    }
+                } catch(err){}
+                document.body.removeChild(ta);
+            };
+
+            window.deleteShowUnused = (key, name) => {
+                window.openConfirm("Delete Showtime Key", `Delete unused key for ${name || 'client'}?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbShowtime, 'availableLicenses', key));
+                        window.showToast("Key deleted");
+                    } catch(e){}
+                });
+            };
+
+            window.terminateShow = (deviceID, name) => {
+                window.openConfirm("Terminate Showtime Client", `Terminate access for ${name || 'client'}? The device will be locked instantly.`, async () => {
+                    try {
+                        await deleteDoc(doc(dbShowtime, 'activatedDevices', deviceID));
+                        window.showToast("Client terminated");
+                    } catch(e){}
+                });
+            };
+        }
     </script>
 </body>
 </html>
