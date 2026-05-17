@@ -1,498 +1,1019 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>ShowTime Admin</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="manifest" href="/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="ShowTime Admin">
-  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #0a0a0a;
-      color: #e5e5e5;
-    }
-    .card {
-      background-color: #1c1c1e;
-      border: 1px solid #2d2d2f;
-      border-radius: 16px;
-    }
-    .card-header {
-      background-color: #2c2c2e;
-      padding: 16px 24px;
-      border-bottom: 1px solid #2d2d2f;
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
-    }
-    .card-title {
-      color: #ffffff;
-      font-weight: 600;
-    }
-    .card-subtitle {
-      color: #FFA00A;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-    .form-input, .form-select {
-        background-color: #2c2c2e;
-        border: 1px solid #3d3d3f;
-        color: #e5e5e5;
-        border-radius: 8px;
-        padding: 0.75rem 1rem;
-        width: 100%;
-        transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-input:focus, .form-select:focus {
-        outline: none;
-        border-color: #FFA00A;
-        box-shadow: 0 0 0 2px rgba(255, 160, 10, 0.3);
-    }
-    .btn {
-        background-color: #FFA00A;
-        color: #1c1c1e;
-        font-weight: 700;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        text-align: center;
-        transition: background-color 0.2s;
-        cursor: pointer;
-        width: 100%;
-    }
-    .btn:hover {
-        background-color: #ffb03a;
-    }
-    .btn.load-more {
-        background-color: #333;
-        color: #ccc;
-    }
-    .btn.load-more:hover {
-        background-color: #444;
-        color: #fff;
-    }
-    .btn-sync {
-        background-color: #2563eb;
-        color: white;
-    }
-    .btn-sync:hover {
-        background-color: #1d4ed8;
-    }
-    .license-item {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid #2d2d2f;
-        transition: background-color 0.1s;
-    }
-     .license-item:hover {
-        background-color: rgba(255,255,255,0.05);
-    }
-    .license-item:last-child {
-        border-bottom: none;
-    }
-    .license-name {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #ffffff;
-    }
-    .license-key {
-        font-family: monospace;
-        font-size: 0.8rem;
-        color: #9ca3af;
-        word-break: break-all;
-    }
-    .action-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-    .action-btn-inline {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        background-color: #333;
-        color: #ccc;
-        border: 1px solid #444;
-        border-radius: 6px;
-        padding: 0.3rem 0.6rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background-color 0.2s, color 0.2s;
-    }
-    .action-btn-inline:hover {
-        background-color: #444;
-        color: #fff;
-    }
-    .action-btn-inline.delete:hover, .action-btn-inline.terminate:hover {
-        background-color: #991b1b;
-        color: #fff;
-    }
-    .toast {
-        position: fixed;
-        bottom: 2rem;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #2c2c2e;
-        color: #fff;
-        padding: 0.8rem 1.75rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-        z-index: 100;
-        min-width: 350px;
-        text-align: center;
-    }
-    .toast.show {
-        opacity: 1;
-        visibility: visible;
-    }
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(0,0,0,0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 50;
-    }
-    .status-badge {
-        display: inline-block;
-        padding: 0.2rem 0.6rem;
-        font-size: 0.75rem;
-        font-weight: 500;
-        border-radius: 9999px;
-    }
-    .status-badge.activated {
-        background-color: #166534;
-        color: #dcfce7;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Heri's App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        input:focus, button:focus, textarea:focus, select:focus {
+            outline: none;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .app-tab.active {
+            color: #ffd60a;
+            border-color: #ffd60a;
+            background-color: rgba(255, 214, 10, 0.05);
+        }
+    </style>
 </head>
-<body class="antialiased">
+<body class="w-screen h-screen m-0 p-0 overflow-hidden flex flex-col bg-black">
 
-  <div class="container mx-auto p-4 md:p-8 max-w-2xl">
-
-    <header class="text-center mb-8">
-      <h1 class="text-4xl md:text-5xl font-bold text-white mb-1">ShowTime</h1>
-      <p class="text-lg text-gray-400">Admin Panel</p>
-    </header>
-
-    <div id="admin-controls" class="mb-6 hidden">
-        <div class="flex flex-col sm:flex-row gap-4">
-            <button id="syncButton" class="btn btn-sync flex-1 flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin hidden"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
-                <span>Sinkronkan Data</span>
+    <div id="login-view" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center">
+        <div class="w-full max-w-sm px-6 flex flex-col items-center space-y-6">
+            <div class="text-center space-y-1">
+                <h1 class="text-3xl font-bold tracking-widest">HERI'S APP</h1>
+                <p class="text-gray-500 text-sm">Unified Management System</p>
+            </div>
+            <div class="w-full space-y-3">
+                <input type="email" id="login-email" placeholder="Admin Email" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
+                <input type="password" id="login-password" placeholder="Password" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
+            </div>
+            <button id="login-submit-btn" class="w-full flex items-center justify-center bg-white text-black py-4 rounded-xl font-bold active:scale-[0.98] transition-transform">
+                Sign In
             </button>
-            <button id="logoutBtn" class="btn bg-gray-700 hover:bg-gray-600 text-white flex-1 flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="17 16 22 12 17 8"></polyline><line x1="22" y1="12" x2="10" y2="12"></line></svg>
-                <span>Logout</span>
-            </button>
+            <div id="login-error-msg" class="text-red-500 text-sm font-medium hidden text-center"></div>
         </div>
-        <p id="lastSyncTime" class="text-center text-gray-500 text-xs mt-2"></p>
     </div>
 
-    <div class="card">
-      <div id="login">
-        <div class="card-header">
-          <p class="card-subtitle">Otentikasi Diperlukan</p>
-          <h2 class="card-title text-xl">Masukkan Password Admin</h2>
-        </div>
-        <div class="p-6 md:p-8 space-y-4">
-          <input type="password" id="passwordInput" class="form-input" placeholder="••••••••">
-          <button onclick="checkPassword()" class="btn">Login</button>
-          <p id="loginError" class="text-red-500 text-sm text-center h-5"></p>
-        </div>
-      </div>
-
-      <div id="panel" class="hidden">
-        <div class="card-header flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <p class="card-subtitle">Pusat Kendali</p>
-                <h2 class="card-title text-xl">Lisensi Belum Terpakai</h2>
+    <div id="dashboard-view" class="hidden flex-col md:flex-row w-full h-full bg-[#0a0a0a]">
+        
+        <aside class="w-full md:w-64 bg-[#141414] border-b md:border-b-0 md:border-r border-[#262626] flex flex-col shrink-0">
+            <div class="p-6 border-b border-[#262626] flex justify-between items-center">
+                <div>
+                    <h1 class="text-lg font-bold tracking-widest text-white">HERI'S APP</h1>
+                    <p class="text-[10px] text-gray-500 tracking-wider">MASTER ADMIN</p>
+                </div>
+                <button id="logout-submit-btn" class="text-xs font-bold text-red-400 bg-red-400/10 px-3 py-1.5 rounded-lg hover:bg-red-400/20 transition-colors md:hidden">Sign Out</button>
             </div>
-            <div id="licenseCount" class="text-right"></div>
-        </div>
-        <div class="p-6 md:p-8 space-y-6">
-            <div class="space-y-3 p-4 bg-black/20 rounded-lg">
-                <label for="customerNameInput" class="block text-sm font-medium text-gray-300">Buat Lisensi</label>
-                <input type="text" id="customerNameInput" class="form-input" placeholder="Masukkan nama pelanggan...">
-                <button onclick="generateAndAssignKey()" class="btn flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                    <span>Buat & Tetapkan Kunci</span>
+            
+            <nav class="flex flex-row md:flex-col overflow-x-auto md:overflow-x-visible hide-scrollbar p-2 md:p-4 gap-1 md:space-y-1">
+                <button onclick="window.switchTab('lucid')" id="tab-lucid" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>LUCID</span>
                 </button>
+                <button onclick="window.switchTab('atma')" id="tab-atma" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>ATMA</span>
+                </button>
+                <button onclick="window.switchTab('permanent')" id="tab-permanent" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>PERMANENT</span>
+                </button>
+                <button onclick="window.switchTab('showtime')" id="tab-showtime" class="app-tab flex-1 md:flex-none flex items-center justify-center md:justify-start gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition-all border border-transparent whitespace-nowrap">
+                    <span>SHOWTIME</span>
+                </button>
+            </nav>
+
+            <div class="hidden md:flex mt-auto p-4 border-t border-[#262626]">
+                <button id="logout-sidebar-btn" class="w-full text-xs font-bold text-red-400 bg-red-400/10 py-3 rounded-xl hover:bg-red-400/20 transition-colors">Sign Out</button>
             </div>
-            <hr class="border-gray-700">
-            <div>
-                <label for="licenseSortSelect" class="block text-sm font-medium text-gray-400 mb-2">Urutkan berdasarkan:</label>
-                <select id="licenseSortSelect" class="form-select">
-                    <option value="date_desc">Tanggal (Terbaru)</option>
-                    <option value="date_asc">Tanggal (Terlama)</option>
-                    <option value="name_asc">Alfabet (A-Z)</option>
-                    <option value="name_desc">Alfabet (Z-A)</option>
-                </select>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto hide-scrollbar p-6">
+            <div class="max-w-4xl mx-auto w-full">
+                
+                <div id="panel-lucid" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">Lucid</h2>
+                            <p class="text-xs text-gray-500">Manage Lucid app client license key system</p>
+                        </div>
+                        <button id="lucid-generate-btn" class="bg-white text-black px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 active:scale-95 transition-transform shrink-0">
+                            Generate License
+                        </button>
+                    </div>
+
+                    <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-3">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Custom Message Template</label>
+                        <textarea id="lucid-template-input" rows="2" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors resize-none" placeholder="Use {code} where you want the license code to appear..."></textarea>
+                    </div>
+
+                    <div class="w-full relative">
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="lucid-search-input" placeholder="Search code or name..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
+                    </div>
+
+                    <div id="lucid-list-container" class="space-y-4"></div>
+                </div>
+
+                <div id="panel-atma" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">Atma</h2>
+                            <p class="text-xs text-gray-500">Vintage book-themed digital magic system</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4 h-fit">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Add New License</h3>
+                            <div class="space-y-3">
+                                <input type="text" id="atma-new-key" placeholder="Code (e.g. ATMA-123)" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors">
+                                <button id="atma-create-btn" class="w-full bg-white text-black py-2.5 rounded-lg text-xs font-bold active:scale-95 transition-transform">Create</button>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-1 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Available</h3>
+                                <span id="atma-available-count" class="text-xs bg-white/10 px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="atma-available-list" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+                        </div>
+
+                        <div class="md:col-span-1 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Activated</h3>
+                                <span id="atma-activated-count" class="text-xs bg-white/10 px-2 py-0.5 rounded-full">0</span>
+                            </div>
+                            <div id="atma-activated-list" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-permanent" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">Permanent</h2>
+                            <p class="text-xs text-gray-500">QR Generator & Stage Tool Suite</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1 space-y-6">
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Generate Codes</h3>
+                                <div class="flex gap-2">
+                                    <input type="number" id="perm-count" min="1" value="1" class="w-20 bg-black border border-[#262626] rounded-lg p-2.5 text-xs text-white text-center">
+                                    <button id="perm-generate-btn" class="flex-1 bg-white text-black py-2.5 rounded-lg text-xs font-bold active:scale-95 transition-transform">Generate</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Available</h3>
+                                <div id="perm-available-list" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center flex-wrap gap-2">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Active Users</h3>
+                                <input type="text" id="perm-search" placeholder="Search by email..." class="bg-black border border-[#262626] rounded-lg px-3 py-1.5 text-xs text-white w-full sm:w-48">
+                            </div>
+                            <div id="perm-active-list" class="space-y-3 max-h-[32rem] overflow-y-auto pr-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="panel-showtime" class="app-panel hidden space-y-6">
+                    <div class="flex flex-row justify-between items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-0.5">ShowTime</h2>
+                            <p class="text-xs text-gray-500">Live Show Media Controller</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-1 space-y-6">
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Create License</h3>
+                                <div class="space-y-3">
+                                    <input type="text" id="show-cust-name" placeholder="Customer Name" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors">
+                                    <button id="show-generate-btn" class="w-full bg-white text-black py-2.5 rounded-lg text-xs font-bold active:scale-95 transition-transform">Create & Assign</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Unused Keys</h3>
+                                    <select id="show-sort-unused" class="bg-black text-[11px] text-gray-400 border border-[#262626] rounded px-1.5 py-0.5">
+                                        <option value="date_desc">Newest</option>
+                                        <option value="date_asc">Oldest</option>
+                                        <option value="name_asc">A-Z</option>
+                                        <option value="name_desc">Z-A</option>
+                                    </select>
+                                </div>
+                                <div id="show-unused-list" class="space-y-3 max-h-96 overflow-y-auto pr-1"></div>
+                                <div id="show-unused-pagination" class="pt-2"></div>
+                            </div>
+                        </div>
+
+                        <div class="md:col-span-2 bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-4">
+                            <div class="flex justify-between items-center flex-wrap gap-3">
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Activated Devices</h3>
+                                <div class="flex gap-2 w-full sm:w-auto">
+                                    <input type="text" id="show-search-active" placeholder="Search..." class="bg-black border border-[#262626] rounded-lg px-3 py-1.5 text-xs text-white w-full sm:w-40">
+                                    <select id="show-sort-active" class="bg-black text-xs text-gray-400 border border-[#262626] rounded-lg px-2 py-1">
+                                        <option value="date_desc">Newest</option>
+                                        <option value="date_asc">Oldest</option>
+                                        <option value="name_asc">A-Z</option>
+                                        <option value="name_desc">Z-A</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="show-activated-list" class="space-y-3 max-h-[32rem] overflow-y-auto pr-1"></div>
+                            <div id="show-activated-pagination" class="pt-2"></div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-            <div id="licenseListContainer"></div>
-            <div id="licensePaginationContainer" class="mt-4"></div>
-        </div>
-      </div>
+        </main>
     </div>
-    
-    <div id="paidUsersCard" class="card mt-8 hidden">
-        <div class="card-header flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <p class="card-subtitle">Log Aktivasi</p>
-                <h2 class="card-title text-xl">Daftar Pengguna Aktif</h2>
+
+    <div id="confirm-modal" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#141414] border border-[#262626] w-full max-w-sm rounded-2xl p-6 text-center space-y-5">
+            <div class="space-y-2">
+                <h3 id="modal-title" class="text-lg font-bold text-white">Confirm</h3>
+                <p id="modal-desc" class="text-sm text-gray-400"></p>
             </div>
-            <div id="activatedCount" class="text-right"></div>
-        </div>
-        <div class="p-6 md:p-8 space-y-6">
-            <div class="relative">
-                <input type="text" id="paidUsersSearchInput" class="form-input pl-10" placeholder="Cari pengguna berdasarkan kunci atau nama...">
-                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div class="flex gap-3">
+                <button id="modal-cancel-btn" class="flex-1 bg-transparent border border-[#262626] text-white py-3 rounded-xl font-bold text-sm">Cancel</button>
+                <button id="modal-confirm-btn" class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-sm">Confirm</button>
             </div>
-            <div>
-                <label for="activatedSortSelect" class="block text-sm font-medium text-gray-400 mb-2">Urutkan berdasarkan:</label>
-                <select id="activatedSortSelect" class="form-select">
-                    <option value="date_desc">Tanggal (Terbaru)</option>
-                    <option value="date_asc">Tanggal (Terlama)</option>
-                    <option value="name_asc">Alfabet (A-Z)</option>
-                    <option value="name_desc">Alfabet (Z-A)</option>
-                </select>
-            </div>
-            <div id="activatedListContainer"></div>
-            <div id="activatedPaginationContainer" class="mt-4"></div>
         </div>
     </div>
 
-    <footer class="text-center mt-8 mb-6">
-        <p class="text-gray-500 text-sm">Gunakan dengan hati-hati.</p>
-    </footer>
-  </div>
-  
-  <div id="toast" class="toast"></div>
-  
-  <div id="confirmModal" class="modal-overlay hidden">
-      <div class="card max-w-sm w-full mx-4">
-          <div class="p-6">
-              <h3 id="confirmTitle" class="text-lg font-bold text-white"></h3>
-              <p id="confirmMessage" class="text-gray-300 mt-2"></p>
-              <div class="flex justify-end gap-4 mt-6">
-                  <button id="cancelBtn" class="px-4 py-2 rounded-lg text-white hover:bg-gray-700">Batal</button>
-                  <button id="confirmBtn" class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"></button>
-              </div>
-          </div>
-      </div>
-  </div>
+    <div id="toast-notif" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-[#141414] border border-[#262626] text-white px-5 py-3 rounded-full text-xs font-semibold tracking-wide shadow-2xl transition-opacity duration-300 opacity-0 pointer-events-none z-[100]"></div>
 
-  <script type="module">
-    // --- DIUBAH: Impor dari Firestore dan Auth ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
-    import { getFirestore, collection, doc, getDocs, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, serverTimestamp, getDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- Firebase Configuration (tidak berubah) ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyBm2cw6dircA3IMc3yCEeCgVa5--5W6DUw",
-      authDomain: "showtime-f086c.firebaseapp.com",
-      projectId: "showtime-f086c",
-      storageBucket: "showtime-f086c.appspot.com",
-      messagingSenderId: "31064800242",
-      appId: "1:31064800242:web:8b290d03eda9bf7d95896b"
-    };
+        const configLucid = {
+            apiKey: "AIzaSyC-0oRlqQ7odJJYXIyaQX_MlAUNcJKk0WU",
+            authDomain: "lucidbyheri.firebaseapp.com",
+            projectId: "lucidbyheri",
+            storageBucket: "lucidbyheri.firebasestorage.app",
+            messagingSenderId: "282347124526",
+            appId: "1:282347124526:web:552c724fae9fc433912cbf"
+        };
 
-    // --- App Initialization ---
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app); // DIUBAH: Menggunakan getFirestore()
-    let ADMIN_PASSWORD = "";
+        const configAtma = {
+            apiKey: "AIzaSyCFDxFe2PnyxaLRb7VctQSHhQh7ZKoSDaU",
+            authDomain: "atmamagicbyheri.firebaseapp.com",
+            projectId: "atmamagicbyheri",
+            storageBucket: "atmamagicbyheri.firebasestorage.app",
+            messagingSenderId: "672288947327",
+            appId: "1:672288947327:web:4ee5d222045bfaf6ed934a"
+        };
 
-    // --- State Management (tidak berubah) ---
-    const PAGE_SIZE = 15;
-    let allLicensesCache = [];
-    let currentLicensePage = 1;
-    let licenseSortOrder = 'date_desc';
-    let allActivatedDevicesCache = [];
-    let currentDevicePage = 1;
-    let activatedSortOrder = 'date_desc';
+        const configPermanent = {
+            apiKey: "AIzaSyAjs_-oH_kma3lHU4BCyStN8W0606MYLus",
+            authDomain: "permanentmagicapp.firebaseapp.com",
+            projectId: "permanentmagicapp",
+            storageBucket: "permanentmagicapp.firebasestorage.app",
+            messagingSenderId: "695981452362",
+            appId: "1:695981452362:web:a0155863e767fa63424ab3"
+        };
 
-    // --- DIUBAH: Logika Otentikasi untuk mengambil password dari Firestore ---
-    async function initializeAdminAuth() {
-        try {
-            await signInAnonymously(auth);
-            // Struktur baru: koleksi 'admin', dokumen 'password'
-            const passDoc = await getDoc(doc(db, "admin", "password"));
-            if (passDoc.exists() && passDoc.data().password) {
-                ADMIN_PASSWORD = passDoc.data().password;
+        const configShowtime = {
+            apiKey: "AIzaSyBm2cw6dircA3IMc3yCEeCgVa5--5W6DUw",
+            authDomain: "showtime-f086c.firebaseapp.com",
+            projectId: "showtime-f086c",
+            storageBucket: "showtime-f086c.appspot.com",
+            messagingSenderId: "31064800242",
+            appId: "1:31064800242:web:8b290d03eda9bf7d95896b"
+        };
+
+        const fLucid = initializeApp(configLucid, "lucid");
+        const fAtma = initializeApp(configAtma, "atma");
+        const fPermanent = initializeApp(configPermanent, "permanent");
+        const fShowtime = initializeApp(configShowtime, "showtime");
+
+        const authLucid = getAuth(fLucid);
+        const dbLucid = getFirestore(fLucid);
+
+        const authAtma = getAuth(fAtma);
+        const dbAtma = getFirestore(fAtma);
+
+        const authPermanent = getAuth(fPermanent);
+        const dbPermanent = getFirestore(fPermanent);
+
+        const authShowtime = getAuth(fShowtime);
+        const dbShowtime = getFirestore(fShowtime);
+
+        const loginView = document.getElementById('login-view');
+        const dashboardView = document.getElementById('dashboard-view');
+        const loginEmail = document.getElementById('login-email');
+        const loginPassword = document.getElementById('login-password');
+        const loginSubmitBtn = document.getElementById('login-submit-btn');
+        const loginErrorMsg = document.getElementById('login-error-msg');
+        
+        const logoutSubmitBtn = document.getElementById('logout-submit-btn');
+        const logoutSidebarBtn = document.getElementById('logout-sidebar-btn');
+
+        const confirmModal = document.getElementById('confirm-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+
+        const toastNotif = document.getElementById('toast-notif');
+
+        let activeTab = 'lucid';
+        let lucidLicenses = [];
+        let atmaAvailable = [];
+        let atmaActivated = [];
+        let permAvailable = [];
+        let permActive = [];
+        
+        let showUnused = [];
+        let showActivated = [];
+        let showUnusedPage = 1;
+        let showActivePage = 1;
+        const SHOW_PAGE_SIZE = 5;
+
+        onAuthStateChanged(authLucid, async (user) => {
+            if (user) {
+                localStorage.setItem('lucid_admin_auth', 'true');
+                loginView.style.display = 'none';
+                dashboardView.classList.remove('hidden');
+                dashboardView.classList.add('flex');
+                
+                try {
+                    await signInAnonymously(authPermanent);
+                    await signInAnonymously(authShowtime);
+                } catch(e){}
+
+                initDashboard();
             } else {
-                document.getElementById("loginError").textContent = "⚠️ Password admin tidak diatur di Firestore (admin/password).";
-            }
-            checkStoredLogin();
-        } catch(err) {
-            console.error("Error during initialization:", err);
-            document.getElementById("loginError").textContent = "⚠️ Tidak dapat terhubung ke database.";
-        }
-    }
-    initializeAdminAuth();
-
-    // Sisa fungsi otentikasi (checkStoredLogin, showAdminPanel, checkPassword, logout) tidak berubah
-    function checkStoredLogin() { if (localStorage.getItem('showtime_admin_loggedIn') === 'true') { showAdminPanel(); initAdminPanel(); } }
-    function showAdminPanel() { document.getElementById("login").classList.add("hidden"); document.getElementById("admin-controls").classList.remove("hidden"); document.getElementById("panel").classList.remove("hidden"); document.getElementById("paidUsersCard").classList.remove("hidden"); }
-    window.checkPassword = () => { const passwordInput = document.getElementById("passwordInput"); if (passwordInput.value === ADMIN_PASSWORD) { localStorage.setItem('showtime_admin_loggedIn', 'true'); showAdminPanel(); initAdminPanel(true); } else { document.getElementById("loginError").textContent = "❌ Password salah."; } };
-    window.logout = () => { localStorage.clear(); window.location.reload(); };
-
-    // --- Main Panel Logic (fungsi initAdminPanel dan loadDataFromCache tidak berubah) ---
-    async function initAdminPanel(forceFetch = false) { loadDataFromCache(); if (forceFetch || !localStorage.getItem('licensesCache')) { await syncDataWithFirebase(); } setupEventListeners(); }
-    function loadDataFromCache() { const licenses = localStorage.getItem('licensesCache'); const devices = localStorage.getItem('activatedDevicesCache'); const lastSync = localStorage.getItem('lastSyncTimestamp'); if (licenses) { allLicensesCache = JSON.parse(licenses); updateAndRenderLicenses(); } if (devices) { allActivatedDevicesCache = JSON.parse(devices); updateAndRenderActivatedList(); } if (lastSync) { updateLastSyncTime(lastSync); calculateAndShowDataSize("⚡️ Data dimuat dari cache lokal."); } }
-
-    // --- DIUBAH: Logika Sinkronisasi dengan Firestore ---
-    async function syncDataWithFirebase() {
-        const syncButton = document.getElementById('syncButton');
-        const spinner = syncButton.querySelector('svg');
-        spinner.classList.remove('hidden');
-        syncButton.disabled = true;
-
-        showToast("Menyinkronkan data dari database...");
-        try {
-            await Promise.all([
-                fetchLicensesFromDB(),
-                fetchActivatedDevicesFromDB()
-            ]);
-            const now = new Date().toISOString();
-            localStorage.setItem('lastSyncTimestamp', now);
-            updateLastSyncTime(now);
-            calculateAndShowDataSize("Sinkronisasi selesai! ✨");
-        } catch (error) {
-            console.error("Sync error:", error);
-            showToast("Gagal menyinkronkan data. Periksa koneksi.");
-        } finally {
-            spinner.classList.add('hidden');
-            syncButton.disabled = false;
-        }
-    }
-
-    // --- DIUBAH: Mengambil semua lisensi dari koleksi 'availableLicenses' di Firestore ---
-    async function fetchLicensesFromDB() {
-        const querySnapshot = await getDocs(collection(db, 'availableLicenses'));
-        const licenses = [];
-        querySnapshot.forEach((doc) => {
-            licenses.push({ key: doc.id, ...doc.data() });
-        });
-        allLicensesCache = licenses;
-        localStorage.setItem('licensesCache', JSON.stringify(allLicensesCache));
-        updateAndRenderLicenses();
-    }
-
-    // --- DIUBAH: Mengambil semua perangkat dari koleksi 'activatedDevices' di Firestore ---
-    async function fetchActivatedDevicesFromDB() {
-        const querySnapshot = await getDocs(collection(db, 'activatedDevices'));
-        const devices = [];
-        querySnapshot.forEach((doc) => {
-            devices.push({ deviceID: doc.id, ...doc.data() });
-        });
-        allActivatedDevicesCache = devices;
-        localStorage.setItem('activatedDevicesCache', JSON.stringify(allActivatedDevicesCache));
-        updateAndRenderActivatedList();
-    }
-    
-    function updateLastSyncTime(isoTimestamp) { const date = new Date(isoTimestamp); document.getElementById('lastSyncTime').textContent = `Sinkronisasi terakhir: ${date.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}`; }
-    
-    // --- Sorting and Rendering (Tidak ada perubahan signifikan) ---
-    function applySorting(data, sortOrder, type) {
-        return [...data].sort((a, b) => {
-            const nameA = a.customerName;
-            const nameB = b.customerName;
-            const dateA = new Date(type === 'license' ? a.createdAt : a.activatedAt);
-            const dateB = new Date(type === 'license' ? b.createdAt : b.activatedAt);
-            switch (sortOrder) {
-                case 'date_asc': return dateA - dateB;
-                case 'name_asc': return (nameA || '').localeCompare(nameB || '');
-                case 'name_desc': return (nameB || '').localeCompare(nameA || '');
-                case 'date_desc': default: return dateB - dateA;
+                localStorage.removeItem('lucid_admin_auth');
+                dashboardView.classList.add('hidden');
+                dashboardView.classList.remove('flex');
+                loginView.style.display = 'flex';
             }
         });
-    }
-    function updateAndRenderLicenses() { currentLicensePage = 1; const sortedLicenses = applySorting(allLicensesCache, licenseSortOrder, 'license'); renderLicenses(sortedLicenses); }
-    function updateAndRenderActivatedList() { currentDevicePage = 1; const searchTerm = document.getElementById('paidUsersSearchInput').value.toLowerCase(); const filtered = searchTerm ? allActivatedDevicesCache.filter(d => (d.customerName || '').toLowerCase().includes(searchTerm) || d.licenseKey.toLowerCase().includes(searchTerm)) : allActivatedDevicesCache; const sortedAndFiltered = applySorting(filtered, activatedSortOrder, 'activated'); renderActivatedList(sortedAndFiltered); }
-    function renderPaginatedList(config) { const { container, paginationContainer, listId, data, renderItem, loadMoreBtnId, emptyMessage, page, pageSize } = config; if (page === 1) { container.innerHTML = `<div id="${listId}" class="border border-gray-700 rounded-lg max-h-[60vh] overflow-y-auto"></div>`; } const listDiv = document.getElementById(listId); if (!listDiv) return; if (data.length === 0 && page === 1) { container.innerHTML = `<p class="text-center text-gray-500 py-8 px-4 italic">${emptyMessage}</p>`; paginationContainer.innerHTML = ''; return; } const itemsToDisplay = data.slice((page - 1) * pageSize, page * pageSize); itemsToDisplay.forEach(item => listDiv.appendChild(renderItem(item))); if (page * pageSize < data.length) { paginationContainer.innerHTML = `<button id="${loadMoreBtnId}" class="btn load-more w-full">Muat Lebih Banyak</button>`; } else { paginationContainer.innerHTML = ''; } }
-    function renderLicenses(licensesToRender) { document.getElementById('licenseCount').innerHTML = `<p class="text-white font-bold text-lg">${allLicensesCache.length} Tersedia</p>`; renderPaginatedList({ container: document.getElementById('licenseListContainer'), paginationContainer: document.getElementById('licensePaginationContainer'), listId: 'licenseList', data: licensesToRender, renderItem: (item) => createLicenseItem(item.key, item), loadMoreBtnId: 'loadMoreLicensesBtn', emptyMessage: 'Tidak ada lisensi yang cocok ditemukan.', page: currentLicensePage, pageSize: PAGE_SIZE }); }
-    function renderActivatedList(devicesToRender) { document.getElementById('activatedCount').innerHTML = `<p class="text-white font-bold text-lg">${allActivatedDevicesCache.length} Aktif</p>`; const emptyMessage = document.getElementById('paidUsersSearchInput').value ? 'Tidak ada pengguna yang cocok ditemukan.' : 'Belum ada perangkat yang diaktifkan.'; renderPaginatedList({ container: document.getElementById('activatedListContainer'), paginationContainer: document.getElementById('activatedPaginationContainer'), listId: 'activatedList', data: devicesToRender, renderItem: createActivatedItem, loadMoreBtnId: 'loadMoreDevicesBtn', emptyMessage: emptyMessage, page: currentDevicePage, pageSize: PAGE_SIZE }); }
-    function createLicenseItem(key, data) { const itemDiv = document.createElement('div'); itemDiv.className = 'license-item'; itemDiv.id = `license-${key}`; const createdAt = new Date(data.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }); itemDiv.innerHTML = `<div><h3 class="license-name">${data.customerName || 'No Name'}</h3><span class="license-key">${key}</span><div class="text-xs text-gray-500 mt-1">Dibuat: ${createdAt}</div><div class="action-buttons mt-3"><button class="action-btn-inline" data-action="copy-key" data-key="${key}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> <span>Salin Kunci</span></button><button class="action-btn-inline" data-action="copy-msg" data-key="${key}" data-customername="${data.customerName}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg> <span>Salin Pesan</span></button><button class="action-btn-inline delete" data-action="delete" data-key="${key}" data-customername="${data.customerName}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg> <span>Hapus</span></button></div></div>`; return itemDiv; }
-    function createActivatedItem(device) { const itemDiv = document.createElement('div'); itemDiv.className = 'license-item'; itemDiv.id = `device-${device.deviceID}`; const customerName = device.customerName || 'Unknown'; const activatedAt = new Date(device.activatedAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }); itemDiv.innerHTML = `<div><h3 class="license-name">${customerName}</h3><span class="license-key">${device.licenseKey}</span><div class="text-xs text-gray-500 mt-1 flex items-center gap-2"><span class="status-badge activated">Aktif</span><span>${activatedAt}</span></div><div class="action-buttons mt-3"><button class="action-btn-inline terminate" data-action="terminate" data-deviceid="${device.deviceID}" data-customername="${customerName}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg> <span>Hentikan</span></button></div></div>`; return itemDiv; }
 
-    // Event Handling (setupEventListeners) tidak berubah signifikan
-    function setupEventListeners() { document.getElementById('logoutBtn').addEventListener('click', logout); document.getElementById('syncButton').addEventListener('click', syncDataWithFirebase); document.getElementById('customerNameInput').addEventListener('keyup', e => { if (e.key === 'Enter') generateAndAssignKey(); }); document.getElementById('licenseListContainer').addEventListener('click', e => { const button = e.target.closest('button[data-action]'); if (!button) return; const action = button.dataset.action; const key = button.dataset.key; if (!key) return; if (action === 'copy-key') copyToClipboard(key, 'Kunci lisensi disalin!'); if (action === 'copy-msg') copyLicenseMessage(key, button.dataset.customername); if (action === 'delete') confirmDelete(key, button.dataset.customername); }); document.getElementById('activatedListContainer').addEventListener('click', e => { const button = e.target.closest('button[data-action="terminate"]'); if (button) confirmTerminate(button.dataset.deviceid, button.dataset.customername); }); document.getElementById('paidUsersSearchInput').addEventListener('input', updateAndRenderActivatedList); document.getElementById('licenseSortSelect').addEventListener('change', e => { licenseSortOrder = e.target.value; updateAndRenderLicenses(); }); document.getElementById('activatedSortSelect').addEventListener('change', e => { activatedSortOrder = e.target.value; updateAndRenderActivatedList(); }); document.getElementById('licensePaginationContainer').addEventListener('click', e => { if (e.target.id === 'loadMoreLicensesBtn') { currentLicensePage++; const sorted = applySorting(allLicensesCache, licenseSortOrder, 'license'); renderLicenses(sorted); } }); document.getElementById('activatedPaginationContainer').addEventListener('click', e => { if (e.target.id === 'loadMoreDevicesBtn') { currentDevicePage++; updateAndRenderActivatedList(); } }); }
-    
-    // --- DIUBAH: Actions dengan Optimistic UI menggunakan Firestore ---
-    window.generateAndAssignKey = async () => {
-        const nameInput = document.getElementById('customerNameInput');
-        const customerName = nameInput.value.trim();
-        if (!customerName) return showToast('⚠️ Nama pelanggan tidak boleh kosong.');
+        loginSubmitBtn.addEventListener('click', async () => {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+            if (!email || !password) return;
 
-        const newKey = generateLicenseKey(customerName);
-        const newLicenseData = { createdAt: new Date().toISOString(), customerName: customerName };
-        const newLicenseCacheData = { key: newKey, ...newLicenseData };
+            loginSubmitBtn.disabled = true;
+            loginSubmitBtn.textContent = 'Verifying...';
+            loginErrorMsg.classList.add('hidden');
 
-        allLicensesCache.unshift(newLicenseCacheData);
-        localStorage.setItem('licensesCache', JSON.stringify(allLicensesCache));
-        updateAndRenderLicenses();
-        showToast(`✅ Kunci untuk ${customerName} berhasil dibuat!`);
-        nameInput.value = '';
-
-        try {
-            await setDoc(doc(db, "availableLicenses", newKey), newLicenseData);
-        } catch (error) { showToast(`Gagal menyimpan ke Firebase. Coba sinkronkan manual.`); }
-    };
-
-    function confirmDelete(key, customerName) {
-        showConfirmationModal({
-            title: "Konfirmasi Penghapusan",
-            message: `Hapus lisensi yang BELUM DIGUNAKAN untuk ${customerName}? Tindakan ini tidak dapat dibatalkan.`,
-            confirmText: "Hapus",
-            onConfirm: async () => {
-                allLicensesCache = allLicensesCache.filter(lic => lic.key !== key);
-                localStorage.setItem('licensesCache', JSON.stringify(allLicensesCache));
-                updateAndRenderLicenses();
-                showToast(`Lisensi untuk ${customerName} dihapus.`);
+            try {
+                await signInWithEmailAndPassword(authLucid, email, password);
                 try {
-                    await deleteDoc(doc(db, "availableLicenses", key));
-                } catch (error) { showToast(`Gagal menghapus dari Firebase. Coba sinkronkan manual.`); }
+                    await signInWithEmailAndPassword(authAtma, email, password);
+                } catch(e){}
+            } catch (err) {
+                loginErrorMsg.textContent = 'Invalid credentials';
+                loginErrorMsg.classList.remove('hidden');
+                loginSubmitBtn.disabled = false;
+                loginSubmitBtn.textContent = 'Sign In';
             }
         });
-    }
 
-    function confirmTerminate(deviceID, customerName) {
-        showConfirmationModal({
-            title: "Konfirmasi Penghentian",
-            message: `Hentikan akses untuk ${customerName}? Pengguna akan langsung diblokir.`,
-            confirmText: "Hentikan",
-            onConfirm: async () => {
-                allActivatedDevicesCache = allActivatedDevicesCache.filter(dev => dev.deviceID !== deviceID);
-                localStorage.setItem('activatedDevicesCache', JSON.stringify(allActivatedDevicesCache));
-                updateAndRenderActivatedList();
-                showToast(`Akses untuk ${customerName} dihentikan.`);
+        const handleLogout = () => {
+            signOut(authLucid);
+            signOut(authAtma);
+            signOut(authPermanent);
+            signOut(authShowtime);
+            localStorage.removeItem('lucid_admin_auth');
+            window.location.reload();
+        };
+
+        logoutSubmitBtn.addEventListener('click', handleLogout);
+        logoutSidebarBtn.addEventListener('click', handleLogout);
+
+        window.showToast = (msg) => {
+            toastNotif.textContent = msg;
+            toastNotif.style.opacity = '1';
+            setTimeout(() => {
+                toastNotif.style.opacity = '0';
+            }, 2500);
+        };
+
+        window.openConfirm = (title, desc, onConfirm) => {
+            modalTitle.textContent = title;
+            modalDesc.textContent = desc;
+            confirmModal.classList.remove('hidden');
+            
+            modalConfirmBtn.onclick = () => {
+                onConfirm();
+                confirmModal.classList.add('hidden');
+            };
+            modalCancelBtn.onclick = () => {
+                confirmModal.classList.add('hidden');
+            };
+        };
+
+        window.switchTab = (tabId) => {
+            activeTab = tabId;
+            document.querySelectorAll('.app-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.app-panel').forEach(el => el.classList.add('hidden'));
+            
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            document.getElementById(`panel-${tabId}`).classList.remove('hidden');
+        };
+
+        function initDashboard() {
+            window.switchTab('lucid');
+            setupLucid();
+            setupAtma();
+            setupPermanent();
+            setupShowtime();
+        }
+
+        function setupLucid() {
+            const listContainer = document.getElementById('lucid-list-container');
+            const searchInput = document.getElementById('lucid-search-input');
+            const templateInput = document.getElementById('lucid-template-input');
+            const generateBtn = document.getElementById('lucid-generate-btn');
+
+            let defaultTemp = "Hi! Here is your Lucid license code: {code}";
+            let currentTemp = localStorage.getItem('lucid_msg_template') || defaultTemp;
+            templateInput.value = currentTemp;
+
+            templateInput.addEventListener('input', (e) => {
+                currentTemp = e.target.value;
+                localStorage.setItem('lucid_msg_template', currentTemp);
+            });
+
+            onSnapshot(collection(dbLucid, "licenses"), (snapshot) => {
+                lucidLicenses = [];
+                snapshot.forEach(doc => {
+                    lucidLicenses.push({ id: doc.id, ...doc.data() });
+                });
+                lucidLicenses.sort((a, b) => (b.createdAt?.toMillis() || 0) - (a.createdAt?.toMillis() || 0));
+                renderLucid();
+            });
+
+            function renderLucid() {
+                const query = searchInput.value.toLowerCase();
+                const filtered = lucidLicenses.filter(item => {
+                    const name = item.name || '';
+                    return item.id.toLowerCase().includes(query) || name.toLowerCase().includes(query);
+                });
+
+                listContainer.innerHTML = '';
+                if (filtered.length === 0) {
+                    listContainer.innerHTML = `<div class="bg-[#141414] border border-[#262626] rounded-xl px-6 py-12 text-center text-gray-500 text-sm">No licenses found.</div>`;
+                    return;
+                }
+
+                filtered.forEach(item => {
+                    const activeColor = item.status === 'active' ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20';
+                    const activeText = item.status === 'active' ? 'Active' : 'Blocked';
+                    const row = document.createElement('div');
+                    row.className = "bg-[#141414] border border-[#262626] rounded-xl p-5 flex flex-col gap-4 hover:border-neutral-700 transition-colors";
+                    row.innerHTML = `
+                        <div class="flex flex-row justify-between items-center">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <span class="font-mono text-white tracking-wider text-sm font-bold">${item.id}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <button onclick="window.copyLucid('${item.id}', false, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">Copy Code</button>
+                                    <button onclick="window.copyLucid('${item.id}', true, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">Copy Text</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 shrink-0">
+                                <button onclick="window.toggleLucidStatus('${item.id}', '${item.status}')" class="px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold border ${activeColor}">${activeText}</button>
+                                <button onclick="window.deleteLucid('${item.id}')" class="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="pt-2 border-t border-neutral-900">
+                            <input type="text" value="${item.name || ''}" placeholder="No owner registered yet" onchange="window.updateLucidName('${item.id}', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-neutral-700 py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
+                        </div>
+                    `;
+                    listContainer.appendChild(row);
+                });
+            }
+
+            searchInput.addEventListener('input', renderLucid);
+
+            generateBtn.addEventListener('click', async () => {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                let code = '';
+                for(let i=0; i<12; i++) {
+                    if(i>0 && i%4===0) code += '-';
+                    code += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
                 try {
-                    await deleteDoc(doc(db, "activatedDevices", deviceID));
-                } catch (error) { showToast(`Gagal menghentikan dari Firebase. Coba sinkronkan manual.`); }
-            }
-        });
-    }
+                    await setDoc(doc(dbLucid, "licenses", code), {
+                        name: "",
+                        status: "active",
+                        createdAt: serverTimestamp()
+                    });
+                    window.showToast("License generated");
+                } catch(e){}
+            });
 
-    // --- Modal & Utility Functions (tidak ada perubahan) ---
-    function copyLicenseMessage(key, customerName) { const greeting = `Hai, ${customerName || 'pelanggan'}! Terima kasih telah membeli ShowTime!`; const instructions = `Berikut langkah selanjutnya untuk mengaktifkan aplikasi:\n\n1. Buka: https://showtime-rose.vercel.app/activate.html\n2. Gunakan kunci lisensi ini:`; copyToClipboard(`${greeting}\n\n${instructions}\n\n${key}`, 'Pesan aktivasi disalin!'); }
-    function showConfirmationModal({ title, message, confirmText, onConfirm }) { const modal = document.getElementById('confirmModal'); document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmMessage').textContent = message; const confirmBtn = document.getElementById('confirmBtn'); confirmBtn.textContent = confirmText; modal.classList.remove('hidden'); const cleanup = () => { modal.classList.add('hidden'); confirmBtn.onclick = null; document.getElementById('cancelBtn').onclick = null; }; confirmBtn.onclick = () => { onConfirm(); cleanup(); }; document.getElementById('cancelBtn').onclick = cleanup; }
-    function calculateAndShowDataSize(messagePrefix) { if (!allLicensesCache.length && !allActivatedDevicesCache.length) { showToast(messagePrefix); return; } const dataString = JSON.stringify(allLicensesCache) + JSON.stringify(allActivatedDevicesCache); const totalBytes = new Blob([dataString]).size; const totalMB = (totalBytes / (1024 * 1024)).toFixed(3); showToast(`${messagePrefix} - ${totalMB} MB`); }
-    function slugify(text) { return text.toString().toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, ''); }
-    function generateLicenseKey(name) { const slug = slugify(name); const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; const v = c === 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); return `${slug}-${uuid}`.toUpperCase(); }
-    function copyToClipboard(text, msg) { navigator.clipboard.writeText(text).then(() => showToast(msg)).catch(err => showToast('Gagal menyalin.')); }
-    function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
-  </script>
+            window.copyLucid = (code, useTemplate, btn) => {
+                let txt = code;
+                if (useTemplate) {
+                    txt = currentTemp.replace(/{code}/g, code);
+                }
+                const ta = document.createElement("textarea");
+                ta.value = txt;
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    const orig = btn.textContent;
+                    btn.textContent = "Copied!";
+                    btn.classList.add('text-green-400');
+                    setTimeout(() => {
+                        btn.textContent = orig;
+                        btn.classList.remove('text-green-400');
+                    }, 1500);
+                } catch(err){}
+                document.body.removeChild(ta);
+            };
+
+            window.toggleLucidStatus = async (id, current) => {
+                const next = current === 'active' ? 'blocked' : 'active';
+                try {
+                    await updateDoc(doc(dbLucid, "licenses", id), { status: next });
+                } catch(e){}
+            };
+
+            window.deleteLucid = (id) => {
+                window.openConfirm("Delete License", `Are you sure you want to delete ${id} permanently?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbLucid, "licenses", id));
+                        window.showToast("License deleted");
+                    } catch(e){}
+                });
+            };
+
+            window.updateLucidName = async (id, name) => {
+                try {
+                    await updateDoc(doc(dbLucid, "licenses", id), { name: name.trim() });
+                    window.showToast("Owner updated");
+                } catch(e){}
+            };
+        }
+
+        function setupAtma() {
+            const createBtn = document.getElementById('atma-create-btn');
+            const newKeyInput = document.getElementById('atma-new-key');
+            const availableList = document.getElementById('atma-available-list');
+            const activatedList = document.getElementById('atma-activated-list');
+            const availableCount = document.getElementById('atma-available-count');
+            const activatedCount = document.getElementById('atma-activated-count');
+
+            onSnapshot(collection(dbAtma, 'availableLicenses'), (snapshot) => {
+                atmaAvailable = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAtmaAvailable();
+            });
+
+            onSnapshot(collection(dbAtma, 'activatedLicenses'), (snapshot) => {
+                atmaActivated = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderAtmaActivated();
+            });
+
+            function renderAtmaAvailable() {
+                availableList.innerHTML = '';
+                availableCount.textContent = atmaAvailable.length;
+                if (atmaAvailable.length === 0) {
+                    availableList.innerHTML = `<p class="text-xs text-gray-500 italic">No unused licenses</p>`;
+                    return;
+                }
+                atmaAvailable.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "p-2.5 bg-black/40 border border-[#262626] rounded-lg flex justify-between items-center";
+                    row.innerHTML = `
+                        <span class="font-mono text-xs text-white">${item.id}</span>
+                        <button onclick="window.deleteAtmaAvailable('${item.id}')" class="text-gray-500 hover:text-red-400 transition-colors">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        </button>
+                    `;
+                    availableList.appendChild(row);
+                });
+            }
+
+            function renderAtmaActivated() {
+                activatedList.innerHTML = '';
+                activatedCount.textContent = atmaActivated.length;
+                if (atmaActivated.length === 0) {
+                    activatedList.innerHTML = `<p class="text-xs text-gray-500 italic">No activated licenses</p>`;
+                    return;
+                }
+                atmaActivated.forEach(item => {
+                    const date = item.claimedAt ? new Date(item.claimedAt.seconds * 1000).toLocaleDateString() : 'N/A';
+                    const row = document.createElement('div');
+                    row.className = "p-3 bg-black/40 border border-[#262626] rounded-lg space-y-2";
+                    row.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="font-mono text-xs font-bold text-white">${item.id}</span>
+                            <button onclick="window.terminateAtma('${item.id}')" class="text-[10px] uppercase font-bold text-red-400 bg-red-400/10 px-2.5 py-1 rounded-md hover:bg-red-400/20 transition-all">Terminate</button>
+                        </div>
+                        <div class="space-y-0.5">
+                            <p class="text-[10px] text-gray-500">UID: <span class="font-mono text-gray-400">${item.uid || 'N/A'}</span></p>
+                            <p class="text-[10px] text-gray-500">Claimed: <span class="text-gray-400">${date}</span></p>
+                        </div>
+                    `;
+                    activatedList.appendChild(row);
+                });
+            }
+
+            createBtn.addEventListener('click', async () => {
+                const key = newKeyInput.value.trim().toUpperCase();
+                if (!key) return;
+                createBtn.disabled = true;
+                try {
+                    const snap = await getDoc(doc(dbAtma, 'availableLicenses', key));
+                    if (snap.exists()) {
+                        window.showToast("This license key already exists.");
+                    } else {
+                        await setDoc(doc(dbAtma, 'availableLicenses', key), { status: 'available', createdAt: serverTimestamp() });
+                        newKeyInput.value = '';
+                        window.showToast("License key created");
+                    }
+                } catch(e){}
+                createBtn.disabled = false;
+            });
+
+            window.deleteAtmaAvailable = (key) => {
+                window.openConfirm("Delete Atma Key", `Are you sure you want to delete unused key ${key}?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbAtma, 'availableLicenses', key));
+                        window.showToast("Key deleted");
+                    } catch(e){}
+                });
+            };
+
+            window.terminateAtma = (key) => {
+                window.openConfirm("Terminate License", `Terminate access for ${key}? This will revoke client access immediately.`, async () => {
+                    try {
+                        await deleteDoc(doc(dbAtma, 'activatedLicenses', key));
+                        window.showToast("License terminated");
+                    } catch(e){}
+                });
+            };
+        }
+
+        function setupPermanent() {
+            const generateBtn = document.getElementById('perm-generate-btn');
+            const countInput = document.getElementById('perm-count');
+            const availableList = document.getElementById('perm-available-list');
+            const activeList = document.getElementById('perm-active-list');
+            const searchInput = document.getElementById('perm-search');
+
+            onSnapshot(collection(dbPermanent, 'availableLicenses'), (snapshot) => {
+                permAvailable = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderPermAvailable();
+            });
+
+            onSnapshot(collection(dbPermanent, 'activatedLicenses'), (snapshot) => {
+                permActive = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                permActive.sort((a, b) => (b.activatedAt?.toDate() || 0) - (a.activatedAt?.toDate() || 0));
+                renderPermActive();
+            });
+
+            function renderPermAvailable() {
+                availableList.innerHTML = '';
+                if (permAvailable.length === 0) {
+                    availableList.innerHTML = `<p class="text-xs text-gray-500 italic">No available codes</p>`;
+                    return;
+                }
+                permAvailable.forEach(item => {
+                    const row = document.createElement('div');
+                    row.className = "p-3 bg-black/40 border border-[#262626] rounded-xl flex flex-col gap-2.5";
+                    row.innerHTML = `
+                        <p class="font-mono text-xs text-center text-white select-all">${item.id}</p>
+                        <div class="flex gap-1.5">
+                            <button onclick="window.copyPerm('${item.id}', false, this)" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Copy</button>
+                            <button onclick="window.copyPerm('${item.id}', true, this)" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Share</button>
+                            <button onclick="window.deletePermUnused('${item.id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2 rounded-lg py-1.5 text-[10px] font-bold transition-all">Delete</button>
+                        </div>
+                    `;
+                    availableList.appendChild(row);
+                });
+            }
+
+            function renderPermActive() {
+                const term = searchInput.value.toLowerCase();
+                const filtered = term ? permActive.filter(u => u.email.toLowerCase().includes(term)) : permActive;
+
+                activeList.innerHTML = '';
+                if (filtered.length === 0) {
+                    activeList.innerHTML = `<p class="text-xs text-gray-500 italic">No active users</p>`;
+                    return;
+                }
+                filtered.forEach(item => {
+                    const date = item.activatedAt ? item.activatedAt.toDate().toLocaleDateString() : 'N/A';
+                    const row = document.createElement('div');
+                    row.className = "p-3.5 bg-black/40 border border-[#262626] rounded-xl flex justify-between items-center";
+                    row.innerHTML = `
+                        <div class="space-y-1">
+                            <p class="text-white font-bold text-xs">${item.email}</p>
+                            <p class="font-mono text-[10px] text-gray-500">${item.licenseCode || 'No code recorded'}</p>
+                            <p class="text-[9px] text-gray-600">Activated: ${date}</p>
+                        </div>
+                        <button onclick="window.terminatePerm('${item.id}')" class="text-[10px] uppercase font-bold text-red-400 bg-red-400/10 px-2.5 py-1.5 rounded-md hover:bg-red-400/20 transition-all shrink-0">Terminate</button>
+                    `;
+                    activeList.appendChild(row);
+                });
+            }
+
+            searchInput.addEventListener('input', renderPermActive);
+
+            generateBtn.addEventListener('click', async () => {
+                const count = parseInt(countInput.value, 10);
+                if (isNaN(count) || count < 1) return;
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Generating...';
+                try {
+                    const batch = writeBatch(dbPermanent);
+                    for (let i = 0; i < count; i++) {
+                        let raw = '';
+                        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                        for (let j = 0; j < 12; j++) {
+                            raw += chars.charAt(Math.floor(Math.random() * chars.length));
+                            if ((j + 1) % 4 === 0 && j < 11) raw += '-';
+                        }
+                        batch.set(doc(dbPermanent, "availableLicenses", raw), {});
+                    }
+                    await batch.commit();
+                    window.showToast(`${count} permanent licenses created`);
+                } catch(e){}
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generate';
+            });
+
+            window.copyPerm = (code, doShare, btn) => {
+                const msg = `Thank you so much for purchasing PERMANENT.
+Your support truly means the world to me as an independent creator in magic.
+
+Here’s your personal license code (one-time use only) :
+
+${code}
+
+I hope you enjoy using it, and I’d love to hear your thoughts or see how you apply it in your work.
+
+Warm regards,
+Heri Sanjaya`;
+
+                if (doShare) {
+                    if (navigator.share) {
+                        navigator.share({ title: 'Permanent License Code', text: msg }).catch(()=>{});
+                    } else {
+                        window.showToast("Sharing is not supported on this browser.");
+                    }
+                } else {
+                    const ta = document.createElement("textarea");
+                    ta.value = msg;
+                    document.body.appendChild(ta);
+                    ta.select();
+                    try {
+                        document.execCommand('copy');
+                        const orig = btn.textContent;
+                        btn.textContent = "Copied!";
+                        setTimeout(() => btn.textContent = orig, 1500);
+                    } catch(err){}
+                    document.body.removeChild(ta);
+                }
+            };
+
+            window.deletePermUnused = (key) => {
+                window.openConfirm("Delete Permanent Key", `Are you sure you want to delete unused key ${key}?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbPermanent, 'availableLicenses', key));
+                        window.showToast("Key deleted");
+                    } catch(e){}
+                });
+            };
+
+            window.terminatePerm = (id) => {
+                window.openConfirm("Terminate User", `Terminate active license for this user? Access will be revoked immediately.`, async () => {
+                    try {
+                        await deleteDoc(doc(dbPermanent, 'activatedLicenses', id));
+                        window.showToast("User terminated");
+                    } catch(e){}
+                });
+            };
+        }
+
+        function setupShowtime() {
+            const custNameInput = document.getElementById('show-cust-name');
+            const generateBtn = document.getElementById('show-generate-btn');
+            const unusedList = document.getElementById('show-unused-list');
+            const unusedPagination = document.getElementById('show-unused-pagination');
+            const activatedList = document.getElementById('show-activated-list');
+            const activatedPagination = document.getElementById('show-activated-pagination');
+            const searchInput = document.getElementById('show-search-active');
+            const sortUnusedSelect = document.getElementById('show-sort-unused');
+            const sortActiveSelect = document.getElementById('show-sort-active');
+
+            onSnapshot(collection(dbShowtime, 'availableLicenses'), (snapshot) => {
+                showUnused = snapshot.docs.map(doc => ({ key: doc.id, ...doc.data() }));
+                updateAndRenderShowUnused();
+            });
+
+            onSnapshot(collection(dbShowtime, 'activatedDevices'), (snapshot) => {
+                showActivated = snapshot.docs.map(doc => ({ deviceID: doc.id, ...doc.data() }));
+                updateAndRenderShowActive();
+            });
+
+            function applySort(data, order, dateProp) {
+                return [...data].sort((a, b) => {
+                    const nameA = a.customerName || '';
+                    const nameB = b.customerName || '';
+                    const dateA = new Date(a[dateProp] || 0);
+                    const dateB = new Date(b[dateProp] || 0);
+                    switch (order) {
+                        case 'date_asc': return dateA - dateB;
+                        case 'name_asc': return nameA.localeCompare(nameB);
+                        case 'name_desc': return nameB.localeCompare(nameA);
+                        case 'date_desc': default: return dateB - dateA;
+                    }
+                });
+            }
+
+            function updateAndRenderShowUnused() {
+                const sorted = applySort(showUnused, sortUnusedSelect.value, 'createdAt');
+                renderShowUnused(sorted);
+            }
+
+            function updateAndRenderShowActive() {
+                const term = searchInput.value.toLowerCase();
+                const filtered = term ? showActivated.filter(d => (d.customerName || '').toLowerCase().includes(term) || d.licenseKey.toLowerCase().includes(term)) : showActivated;
+                const sorted = applySort(filtered, sortActiveSelect.value, 'activatedAt');
+                renderShowActive(sorted);
+            }
+
+            function renderShowUnused(data) {
+                unusedList.innerHTML = '';
+                const totalPages = Math.ceil(data.length / SHOW_PAGE_SIZE) || 1;
+                if (showUnusedPage > totalPages) showUnusedPage = totalPages;
+
+                if (data.length === 0) {
+                    unusedList.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No unused keys found</p>`;
+                    unusedPagination.innerHTML = '';
+                    return;
+                }
+
+                const pageData = data.slice((showUnusedPage - 1) * SHOW_PAGE_SIZE, showUnusedPage * SHOW_PAGE_SIZE);
+                pageData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "p-3 bg-black/40 border border-[#262626] rounded-xl space-y-2.5";
+                    card.innerHTML = `
+                        <div>
+                            <p class="text-white text-xs font-bold">${item.customerName || 'No Name'}</p>
+                            <p class="font-mono text-[10px] text-gray-500 break-all select-all">${item.key}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="window.copyShow('${item.key}', false, this)" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Copy Key</button>
+                            <button onclick="window.copyShow('${item.key}', true, '${item.customerName || ''}')" class="flex-1 bg-[#262626] hover:bg-[#323232] text-white py-1.5 rounded-lg text-[10px] font-bold transition-all">Copy Msg</button>
+                            <button onclick="window.deleteShowUnused('${item.key}', '${item.customerName || ''}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-2 rounded-lg py-1.5 text-[10px] font-bold transition-all">Delete</button>
+                        </div>
+                    `;
+                    unusedList.appendChild(card);
+                });
+
+                renderPaginationUI(unusedPagination, showUnusedPage, totalPages, (p) => {
+                    showUnusedPage = p;
+                    updateAndRenderShowUnused();
+                });
+            }
+
+            function renderShowActive(data) {
+                activatedList.innerHTML = '';
+                const totalPages = Math.ceil(data.length / SHOW_PAGE_SIZE) || 1;
+                if (showActivePage > totalPages) showActivePage = totalPages;
+
+                if (data.length === 0) {
+                    activatedList.innerHTML = `<p class="text-xs text-gray-500 italic text-center py-4">No active devices found</p>`;
+                    activatedPagination.innerHTML = '';
+                    return;
+                }
+
+                const pageData = data.slice((showActivePage - 1) * SHOW_PAGE_SIZE, showActivePage * SHOW_PAGE_SIZE);
+                pageData.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = "p-3.5 bg-black/40 border border-[#262626] rounded-xl flex justify-between items-center";
+                    card.innerHTML = `
+                        <div class="space-y-1">
+                            <p class="text-white font-bold text-xs">${item.customerName || 'Unknown'}</p>
+                            <p class="font-mono text-[10px] text-gray-500 break-all select-all">${item.licenseKey}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] bg-green-500/10 text-green-400 px-2 py-0.5 rounded-full font-bold">Active</span>
+                                <span class="text-[9px] text-gray-600">${new Date(item.activatedAt).toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                        <button onclick="window.terminateShow('${item.deviceID}', '${item.customerName || ''}')" class="text-[10px] uppercase font-bold text-red-400 bg-red-400/10 px-2.5 py-1.5 rounded-md hover:bg-red-400/20 transition-all shrink-0">Terminate</button>
+                    `;
+                    activatedList.appendChild(card);
+                });
+
+                renderPaginationUI(activatedPagination, showActivePage, totalPages, (p) => {
+                    showActivePage = p;
+                    updateAndRenderShowActive();
+                });
+            }
+
+            function renderPaginationUI(container, current, total, onSwitch) {
+                container.innerHTML = '';
+                if (total <= 1) return;
+                const div = document.createElement('div');
+                div.className = "flex justify-center items-center gap-2";
+                
+                const prev = document.createElement('button');
+                prev.className = "px-2.5 py-1 bg-[#141414] border border-[#262626] rounded text-xs text-white disabled:opacity-30";
+                prev.textContent = "Prev";
+                prev.disabled = current === 1;
+                prev.onclick = () => onSwitch(current - 1);
+
+                const label = document.createElement('span');
+                label.className = "text-xs text-gray-400";
+                label.textContent = `${current} of ${total}`;
+
+                const next = document.createElement('button');
+                next.className = "px-2.5 py-1 bg-[#141414] border border-[#262626] rounded text-xs text-white disabled:opacity-30";
+                next.textContent = "Next";
+                next.disabled = current === total;
+                next.onclick = () => onSwitch(current + 1);
+
+                div.appendChild(prev);
+                div.appendChild(label);
+                div.appendChild(next);
+                container.appendChild(div);
+            }
+
+            sortUnusedSelect.addEventListener('change', updateAndRenderShowUnused);
+            sortActiveSelect.addEventListener('change', updateAndRenderShowActive);
+            searchInput.addEventListener('input', updateAndRenderShowActive);
+
+            generateBtn.addEventListener('click', async () => {
+                const customerName = custNameInput.value.trim();
+                if (!customerName) return;
+
+                const slug = customerName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '').replace(/--+/g, '-').replace(/^-+/, '').replace(/-+$/, '');
+                const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+                const key = `${slug}-${uuid}`.toUpperCase();
+
+                const val = { createdAt: new Date().toISOString(), customerName: customerName };
+                try {
+                    await setDoc(doc(dbShowtime, "availableLicenses", key), val);
+                    custNameInput.value = '';
+                    window.showToast("ShowTime license created");
+                } catch(e){}
+            });
+
+            window.copyShow = (key, msgOnly, elementOrName) => {
+                let txt = key;
+                if (msgOnly) {
+                    txt = `Hai, ${elementOrName || 'pelanggan'}! Terima kasih telah membeli ShowTime!\n\nBerikut langkah selanjutnya untuk mengaktifkan aplikasi:\n\n1. Buka: https://showtime-rose.vercel.app/activate.html\n2. Gunakan kunci lisensi ini:\n\n${key}`;
+                }
+                const ta = document.createElement("textarea");
+                ta.value = txt;
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    if (!msgOnly) {
+                        const orig = elementOrName.textContent;
+                        elementOrName.textContent = "Copied!";
+                        setTimeout(() => elementOrName.textContent = orig, 1500);
+                    } else {
+                        window.showToast("Message copied!");
+                    }
+                } catch(err){}
+                document.body.removeChild(ta);
+            };
+
+            window.deleteShowUnused = (key, name) => {
+                window.openConfirm("Delete Showtime Key", `Delete unused key for ${name || 'client'}?`, async () => {
+                    try {
+                        await deleteDoc(doc(dbShowtime, 'availableLicenses', key));
+                        window.showToast("Key deleted");
+                    } catch(e){}
+                });
+            };
+
+            window.terminateShow = (deviceID, name) => {
+                window.openConfirm("Terminate Showtime Client", `Terminate access for ${name || 'client'}? The device will be locked instantly.`, async () => {
+                    try {
+                        await deleteDoc(doc(dbShowtime, 'activatedDevices', deviceID));
+                        window.showToast("Client terminated");
+                    } catch(e){}
+                });
+            };
+        }
+    </script>
 </body>
 </html>
