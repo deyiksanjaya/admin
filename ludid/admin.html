@@ -15,7 +15,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
-        input:focus, button:focus {
+        input:focus, button:focus, textarea:focus {
             outline: none;
         }
         .hide-scrollbar::-webkit-scrollbar {
@@ -65,6 +65,11 @@
                         </button>
                     </div>
 
+                    <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 mb-6">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Custom Message Template</label>
+                        <textarea id="template-input" rows="2" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors resize-none" placeholder="Use {code} where you want the license code to appear..."></textarea>
+                    </div>
+
                     <div class="w-full relative mb-4">
                         <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <input type="text" id="search-input" placeholder="Search code or name..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
@@ -102,8 +107,8 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         const loginView = document.getElementById('login-view');
         const dashboardView = document.getElementById('dashboard-view');
@@ -116,8 +121,18 @@
         const generateBtn = document.getElementById('generate-btn');
         const searchInput = document.getElementById('search-input');
         const listContainer = document.getElementById('license-list-container');
+        const templateInput = document.getElementById('template-input');
         
         let allLicenses = [];
+
+        const defaultTemplate = "Hi! Here is your Lucid license code: {code}";
+        let currentTemplate = localStorage.getItem('lucid_msg_template') || defaultTemplate;
+        templateInput.value = currentTemplate;
+
+        templateInput.addEventListener('input', (e) => {
+            currentTemplate = e.target.value;
+            localStorage.setItem('lucid_msg_template', currentTemplate);
+        });
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -185,10 +200,10 @@
 
         function renderList() {
             const query = searchInput.value.toLowerCase();
-            const filtered = allLicenses.filter(item => 
-                item.id.toLowerCase().includes(query) || 
-                (item.name && item.name.toLowerCase().includes(query))
-            );
+            const filtered = allLicenses.filter(item => {
+                const searchName = item.name || '';
+                return item.id.toLowerCase().includes(query) || searchName.toLowerCase().includes(query);
+            });
 
             listContainer.innerHTML = '';
 
@@ -207,10 +222,19 @@
                 
                 const statusColor = item.status === 'active' ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20';
                 const statusText = item.status === 'active' ? 'Active' : 'Blocked';
-                
+                const currentName = item.name || '';
+
                 itemDiv.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <span class="font-mono text-white tracking-wider text-sm font-semibold">${item.id}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="font-mono text-white tracking-wider text-sm font-semibold">${item.id}</span>
+                            <button onclick="window.copyToClipboard('${item.id}', false, this)" class="text-xs text-gray-400 hover:text-white px-2 py-1 bg-[#262626] rounded-md transition-colors">
+                                Copy Code
+                            </button>
+                            <button onclick="window.copyToClipboard('${item.id}', true, this)" class="text-xs text-gray-400 hover:text-white px-2 py-1 bg-[#262626] rounded-md transition-colors">
+                                Copy Text
+                            </button>
+                        </div>
                         <div class="flex items-center gap-3">
                             <button onclick="window.toggleStatus('${item.id}', '${item.status}')" class="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${statusColor} active:scale-95 transition-all">
                                 ${statusText}
@@ -221,12 +245,39 @@
                         </div>
                     </div>
                     <div>
-                        <input type="text" value="${item.name || ''}" placeholder="Owner name..." onchange="window.updateName('${item.id}', this.value)" class="w-full bg-transparent border-b border-[#333333] focus:border-white py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
+                        <input type="text" value="${currentName}" placeholder="Owner name..." onchange="window.updateName('${item.id}', this.value)" class="w-full bg-transparent border-b border-[#333333] focus:border-white py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
                     </div>
                 `;
                 listContainer.appendChild(itemDiv);
             });
         }
+
+        window.copyToClipboard = (code, useTemplate, btnElement) => {
+            let textToCopy = code;
+            if (useTemplate) {
+                textToCopy = currentTemplate.replace(/{code}/g, code);
+            }
+
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                const originalText = btnElement.textContent;
+                btnElement.textContent = "Copied!";
+                btnElement.classList.replace('text-gray-400', 'text-green-400');
+                setTimeout(() => {
+                    btnElement.textContent = originalText;
+                    btnElement.classList.replace('text-green-400', 'text-gray-400');
+                }, 1500);
+            } catch (err) {
+                console.error('Failed to copy text', err);
+            }
+
+            document.body.removeChild(textArea);
+        };
 
         searchInput.addEventListener('input', renderList);
 
