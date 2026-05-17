@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Lucid Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -24,7 +27,7 @@
         }
     </style>
 </head>
-<body class="w-screen h-screen m-0 p-0 overflow-x-hidden flex flex-col">
+<body class="w-screen h-screen m-0 p-0 overflow-x-hidden flex flex-col bg-black">
 
     <div id="login-view" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center transition-opacity duration-300">
         <div class="w-full max-w-sm px-6 flex flex-col items-center">
@@ -47,57 +50,42 @@
             <button id="logout-btn" class="text-xs font-bold text-red-400 bg-red-400/10 px-4 py-2 rounded-lg hover:bg-red-400/20 transition-colors">Sign Out</button>
         </header>
 
-        <div class="flex-1 overflow-y-auto hide-scrollbar p-6">
-            <div class="max-w-6xl mx-auto">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                    <div>
-                        <h2 class="text-2xl font-bold text-white mb-1">Licenses</h2>
-                        <p class="text-sm text-gray-500">Manage application access and user assignments</p>
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-0 sm:p-6">
+            <div class="max-w-3xl mx-auto w-full">
+                
+                <div class="p-6 pb-2">
+                    <div class="flex flex-row justify-between items-center gap-4 mb-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-white mb-1">Licenses</h2>
+                            <p class="text-xs text-gray-500">Manage application access</p>
+                        </div>
+                        <button id="generate-btn" class="bg-white text-black px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 active:scale-95 transition-transform shrink-0">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Generate
+                        </button>
                     </div>
-                    <button id="generate-btn" class="bg-white text-black px-5 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 active:scale-95 transition-transform shrink-0">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                        Generate Code
-                    </button>
+
+                    <div class="w-full relative mb-4">
+                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="search-input" placeholder="Search code or name..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
+                    </div>
                 </div>
 
-                <div class="w-full mb-6 relative">
-                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <input type="text" id="search-input" placeholder="Search license or email..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
-                </div>
-
-                <div class="bg-[#141414] border border-[#262626] rounded-xl overflow-hidden w-full">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm whitespace-nowrap">
-                            <thead>
-                                <tr class="bg-[#0a0a0a] border-b border-[#262626] text-gray-400">
-                                    <th class="px-6 py-4 font-semibold">License Code</th>
-                                    <th class="px-6 py-4 font-semibold">Assigned User</th>
-                                    <th class="px-6 py-4 font-semibold">Status</th>
-                                    <th class="px-6 py-4 font-semibold text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="license-table-body" class="divide-y divide-[#262626]">
-                            </tbody>
-                        </table>
+                <div class="bg-[#141414] sm:border border-[#262626] sm:rounded-xl overflow-hidden w-full">
+                    <div id="license-list-container" class="flex flex-col divide-y divide-[#262626]">
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="email-modal" class="fixed inset-0 z-[100] bg-black/80 hidden items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-        <div class="bg-[#141414] border border-[#262626] w-full max-w-md rounded-2xl p-6 transform scale-95 transition-transform duration-300" id="email-modal-content">
-            <h3 class="text-lg font-bold text-white mb-2">Assign User</h3>
-            <p class="text-sm text-gray-500 mb-6">Link this license to a specific email address.</p>
-            
-            <input type="email" id="assign-email-input" placeholder="user@domain.com" class="w-full bg-[#0a0a0a] border border-[#262626] rounded-xl py-3 px-4 text-sm text-white focus:border-white transition-colors mb-6">
-            
-            <div class="flex gap-3">
-                <button id="cancel-assign-btn" class="flex-1 bg-transparent border border-[#262626] text-white py-3 rounded-xl font-bold text-sm hover:bg-[#262626] transition-colors">Cancel</button>
-                <button id="save-assign-btn" class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Save</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        if (localStorage.getItem('lucid_admin_auth') === 'true') {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('flex');
+        }
+    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -127,35 +115,23 @@
 
         const generateBtn = document.getElementById('generate-btn');
         const searchInput = document.getElementById('search-input');
-        const tableBody = document.getElementById('license-table-body');
+        const listContainer = document.getElementById('license-list-container');
         
-        const emailModal = document.getElementById('email-modal');
-        const emailModalContent = document.getElementById('email-modal-content');
-        const assignEmailInput = document.getElementById('assign-email-input');
-        const cancelAssignBtn = document.getElementById('cancel-assign-btn');
-        const saveAssignBtn = document.getElementById('save-assign-btn');
-
         let allLicenses = [];
-        let currentEditingId = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginView.style.opacity = '0';
-                setTimeout(() => {
-                    loginView.classList.add('hidden');
-                    loginView.classList.remove('flex');
-                    dashboardView.classList.remove('hidden');
-                    dashboardView.classList.add('flex');
-                    loadData();
-                }, 300);
+                localStorage.setItem('lucid_admin_auth', 'true');
+                loginView.style.display = 'none';
+                dashboardView.classList.remove('hidden');
+                dashboardView.classList.add('flex');
+                loadData();
             } else {
+                localStorage.removeItem('lucid_admin_auth');
                 dashboardView.classList.add('hidden');
                 dashboardView.classList.remove('flex');
-                loginView.classList.remove('hidden');
-                loginView.classList.add('flex');
-                setTimeout(() => {
-                    loginView.style.opacity = '1';
-                }, 10);
+                loginView.style.display = 'flex';
+                loginView.style.opacity = '1';
             }
         });
 
@@ -184,6 +160,7 @@
         });
 
         logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('lucid_admin_auth');
             signOut(auth);
         });
 
@@ -202,67 +179,56 @@
                     return timeB - timeA;
                 });
                 
-                renderTable();
+                renderList();
             });
         }
 
-        function renderTable() {
+        function renderList() {
             const query = searchInput.value.toLowerCase();
             const filtered = allLicenses.filter(item => 
                 item.id.toLowerCase().includes(query) || 
-                (item.email && item.email.toLowerCase().includes(query))
+                (item.name && item.name.toLowerCase().includes(query))
             );
 
-            tableBody.innerHTML = '';
+            listContainer.innerHTML = '';
 
             if (filtered.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-gray-500">
-                            No licenses found.
-                        </td>
-                    </tr>
+                listContainer.innerHTML = `
+                    <div class="px-6 py-12 text-center text-gray-500 text-sm">
+                        No licenses found.
+                    </div>
                 `;
                 return;
             }
 
             filtered.forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-[#1a1a1a] transition-colors group";
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "flex flex-col p-5 hover:bg-[#1a1a1a] transition-colors gap-3 group";
                 
-                const emailDisplay = item.email ? 
-                    `<span class="text-white">${item.email}</span>` : 
-                    `<span class="text-gray-600 italic">Unassigned</span>`;
-
                 const statusColor = item.status === 'active' ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20';
                 const statusText = item.status === 'active' ? 'Active' : 'Blocked';
                 
-                tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <span class="font-mono text-white tracking-wider">${item.id}</span>
-                    </td>
-                    <td class="px-6 py-4 cursor-pointer" onclick="window.openEmailModal('${item.id}', '${item.email || ''}')">
-                        <div class="flex items-center gap-2">
-                            ${emailDisplay}
-                            <svg class="w-3.5 h-3.5 text-gray-600 group-hover:text-white transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-mono text-white tracking-wider text-sm font-semibold">${item.id}</span>
+                        <div class="flex items-center gap-3">
+                            <button onclick="window.toggleStatus('${item.id}', '${item.status}')" class="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${statusColor} active:scale-95 transition-all">
+                                ${statusText}
+                            </button>
+                            <button onclick="window.deleteLicense('${item.id}')" class="text-gray-500 hover:text-red-400 p-1 rounded-lg hover:bg-red-400/10 transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
                         </div>
-                    </td>
-                    <td class="px-6 py-4">
-                        <button onclick="window.toggleStatus('${item.id}', '${item.status}')" class="px-3 py-1 rounded-full text-xs font-bold border ${statusColor} active:scale-95 transition-all">
-                            ${statusText}
-                        </button>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                        <button onclick="window.deleteLicense('${item.id}')" class="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                        </button>
-                    </td>
+                    </div>
+                    <div>
+                        <input type="text" value="${item.name || ''}" placeholder="Owner name..." onchange="window.updateName('${item.id}', this.value)" class="w-full bg-transparent border-b border-[#333333] focus:border-white py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
+                    </div>
                 `;
-                tableBody.appendChild(tr);
+                listContainer.appendChild(itemDiv);
             });
         }
 
-        searchInput.addEventListener('input', renderTable);
+        searchInput.addEventListener('input', renderList);
 
         generateBtn.addEventListener('click', async () => {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -274,7 +240,7 @@
             
             try {
                 await setDoc(doc(db, "licenses", code), {
-                    email: "",
+                    name: "",
                     status: "active",
                     createdAt: serverTimestamp()
                 });
@@ -298,42 +264,13 @@
             }
         };
 
-        window.openEmailModal = (id, currentEmail) => {
-            currentEditingId = id;
-            assignEmailInput.value = currentEmail;
-            emailModal.classList.remove('hidden');
-            emailModal.classList.add('flex');
-            setTimeout(() => {
-                emailModal.classList.remove('opacity-0');
-                emailModalContent.classList.remove('scale-95');
-                emailModalContent.classList.add('scale-100');
-            }, 10);
-        };
-
-        function closeEmailModal() {
-            emailModal.classList.add('opacity-0');
-            emailModalContent.classList.remove('scale-100');
-            emailModalContent.classList.add('scale-95');
-            setTimeout(() => {
-                emailModal.classList.add('hidden');
-                emailModal.classList.remove('flex');
-                currentEditingId = null;
-            }, 300);
-        }
-
-        cancelAssignBtn.addEventListener('click', closeEmailModal);
-
-        saveAssignBtn.addEventListener('click', async () => {
-            if (!currentEditingId) return;
-            const newEmail = assignEmailInput.value.trim();
-            
+        window.updateName = async (id, newName) => {
             try {
-                await updateDoc(doc(db, "licenses", currentEditingId), {
-                    email: newEmail
+                await updateDoc(doc(db, "licenses", id), {
+                    name: newName.trim()
                 });
-                closeEmailModal();
             } catch (e) {}
-        });
+        };
     </script>
 </body>
 </html>
