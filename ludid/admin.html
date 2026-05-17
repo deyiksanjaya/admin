@@ -30,17 +30,21 @@
 <body class="w-screen h-screen m-0 p-0 overflow-x-hidden flex flex-col bg-black">
 
     <div id="login-view" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center transition-opacity duration-300">
-        <div class="w-full max-w-sm px-6 flex flex-col items-center">
-            <h1 class="text-3xl font-bold tracking-widest mb-2">LUCID ADMIN</h1>
-            <p class="text-gray-500 text-sm mb-10 text-center">System Management</p>
+        <div class="w-full max-w-sm px-6 flex flex-col items-center space-y-6">
+            <div class="text-center space-y-1">
+                <h1 class="text-3xl font-bold tracking-widest">LUCID ADMIN</h1>
+                <p class="text-gray-500 text-sm">System Management</p>
+            </div>
             
-            <input type="email" id="email-input" placeholder="Admin Email" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3 px-4 text-sm text-white focus:border-white transition-colors mb-3">
-            <input type="password" id="password-input" placeholder="Password" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3 px-4 text-sm text-white focus:border-white transition-colors mb-6">
+            <div class="w-full space-y-3">
+                <input type="email" id="email-input" placeholder="Admin Email" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
+                <input type="password" id="password-input" placeholder="Password" class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 px-4 text-sm text-white focus:border-white transition-colors">
+            </div>
             
-            <button id="login-btn" class="w-full flex items-center justify-center gap-2 bg-white text-black px-6 py-3.5 rounded-xl font-bold active:scale-[0.98] transition-transform">
+            <button id="login-btn" class="w-full flex items-center justify-center gap-2 bg-white text-black py-4 rounded-xl font-bold active:scale-[0.98] transition-transform">
                 Sign In
             </button>
-            <div id="login-error" class="mt-4 text-red-500 text-sm font-medium hidden"></div>
+            <div id="login-error" class="text-red-500 text-sm font-medium hidden"></div>
         </div>
     </div>
 
@@ -50,36 +54,33 @@
             <button id="logout-btn" class="text-xs font-bold text-red-400 bg-red-400/10 px-4 py-2 rounded-lg hover:bg-red-400/20 transition-colors">Sign Out</button>
         </header>
 
-        <div class="flex-1 overflow-y-auto hide-scrollbar p-0 sm:p-6">
-            <div class="max-w-3xl mx-auto w-full">
+        <div class="flex-1 overflow-y-auto hide-scrollbar p-6">
+            <div class="max-w-3xl mx-auto w-full space-y-6">
                 
-                <div class="p-6 pb-2">
-                    <div class="flex flex-row justify-between items-center gap-4 mb-6">
-                        <div>
-                            <h2 class="text-xl font-bold text-white mb-1">Licenses</h2>
-                            <p class="text-xs text-gray-500">Manage application access</p>
-                        </div>
-                        <button id="generate-btn" class="bg-white text-black px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 active:scale-95 transition-transform shrink-0">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                            Generate
-                        </button>
+                <div class="flex flex-row justify-between items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white mb-0.5">Licenses</h2>
+                        <p class="text-xs text-gray-500">Manage application access</p>
                     </div>
-
-                    <div class="bg-[#141414] border border-[#262626] rounded-xl p-4 mb-6">
-                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Custom Message Template</label>
-                        <textarea id="template-input" rows="2" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors resize-none" placeholder="Use {code} where you want the license code to appear..."></textarea>
-                    </div>
-
-                    <div class="w-full relative mb-4">
-                        <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <input type="text" id="search-input" placeholder="Search code or name..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
-                    </div>
+                    <button id="generate-btn" class="bg-white text-black px-4 py-2.5 rounded-lg font-bold text-xs flex items-center gap-2 active:scale-95 transition-transform shrink-0">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Generate
+                    </button>
                 </div>
 
-                <div class="bg-[#141414] sm:border border-[#262626] sm:rounded-xl overflow-hidden w-full">
-                    <div id="license-list-container" class="flex flex-col divide-y divide-[#262626]">
-                    </div>
+                <div class="bg-[#141414] border border-[#262626] rounded-xl p-5 space-y-3">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Custom Message Template</label>
+                    <textarea id="template-input" rows="2" class="w-full bg-black border border-[#262626] rounded-lg p-3 text-xs text-white placeholder-gray-600 focus:border-white transition-colors resize-none" placeholder="Use {code} where you want the license code to appear..."></textarea>
                 </div>
+
+                <div class="w-full relative">
+                    <svg class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <input type="text" id="search-input" placeholder="Search code or name..." class="w-full bg-[#141414] border border-[#262626] rounded-xl py-3.5 pl-11 pr-4 text-sm text-white placeholder-gray-600 focus:border-white transition-colors">
+                </div>
+
+                <div id="license-list-container" class="space-y-4">
+                </div>
+                
             </div>
         </div>
     </div>
@@ -209,7 +210,7 @@
 
             if (filtered.length === 0) {
                 listContainer.innerHTML = `
-                    <div class="px-6 py-12 text-center text-gray-500 text-sm">
+                    <div class="bg-[#141414] border border-[#262626] rounded-xl px-6 py-12 text-center text-gray-500 text-sm">
                         No licenses found.
                     </div>
                 `;
@@ -218,34 +219,36 @@
 
             filtered.forEach(item => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = "flex flex-col p-5 hover:bg-[#1a1a1a] transition-colors gap-3 group";
+                itemDiv.className = "bg-[#141414] border border-[#262626] rounded-xl p-5 flex flex-col gap-4 hover:border-gray-500 transition-colors duration-300";
                 
                 const statusColor = item.status === 'active' ? 'text-green-400 bg-green-400/10 border-green-400/20' : 'text-red-400 bg-red-400/10 border-red-400/20';
                 const statusText = item.status === 'active' ? 'Active' : 'Blocked';
                 const currentName = item.name || '';
 
                 itemDiv.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <span class="font-mono text-white tracking-wider text-sm font-semibold">${item.id}</span>
-                            <button onclick="window.copyToClipboard('${item.id}', false, this)" class="text-xs text-gray-400 hover:text-white px-2 py-1 bg-[#262626] rounded-md transition-colors">
-                                Copy Code
-                            </button>
-                            <button onclick="window.copyToClipboard('${item.id}', true, this)" class="text-xs text-gray-400 hover:text-white px-2 py-1 bg-[#262626] rounded-md transition-colors">
-                                Copy Text
-                            </button>
+                    <div class="flex flex-row justify-between items-center">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="font-mono text-white tracking-wider text-base font-bold">${item.id}</span>
+                            <div class="flex items-center gap-1.5">
+                                <button onclick="window.copyToClipboard('${item.id}', false, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">
+                                    Copy Code
+                                </button>
+                                <button onclick="window.copyToClipboard('${item.id}', true, this)" class="text-[11px] font-bold text-gray-400 hover:text-white px-2.5 py-1.5 bg-black/60 border border-[#262626] rounded-lg transition-colors">
+                                    Copy Text
+                                </button>
+                            </div>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <button onclick="window.toggleStatus('${item.id}', '${item.status}')" class="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold border ${statusColor} active:scale-95 transition-all">
+                        <div class="flex items-center gap-3 shrink-0">
+                            <button onclick="window.toggleStatus('${item.id}', '${item.status}')" class="px-3 py-1.5 rounded-full text-[10px] uppercase tracking-wider font-bold border ${statusColor} active:scale-95 transition-all">
                                 ${statusText}
                             </button>
-                            <button onclick="window.deleteLicense('${item.id}')" class="text-gray-500 hover:text-red-400 p-1 rounded-lg hover:bg-red-400/10 transition-colors">
+                            <button onclick="window.deleteLicense('${item.id}')" class="text-gray-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                             </button>
                         </div>
                     </div>
-                    <div>
-                        <input type="text" value="${currentName}" placeholder="Owner name..." onchange="window.updateName('${item.id}', this.value)" class="w-full bg-transparent border-b border-[#333333] focus:border-white py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
+                    <div class="pt-2 border-t border-black/40">
+                        <input type="text" value="${currentName}" placeholder="No owner registered yet" onchange="window.updateName('${item.id}', this.value)" class="w-full bg-transparent border-b border-transparent focus:border-gray-500 py-1.5 text-sm text-gray-300 placeholder-gray-600 transition-colors">
                     </div>
                 `;
                 listContainer.appendChild(itemDiv);
